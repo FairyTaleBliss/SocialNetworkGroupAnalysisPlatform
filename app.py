@@ -137,6 +137,6 @@ def DemonstrationOfCommunityDivisionModel():
     return render_template('DemonstrationOfCommunityDivisionModel.html')
 
 if __name__ == '__main__':
-    # app.run()
-    server = pywsgi.WSGIServer(('127.0.0.1', 5000), app)
-    server.serve_forever()
+    app.run()
+    # server = pywsgi.WSGIServer(('127.0.0.1', 5000), app)
+    # server.serve_forever()
