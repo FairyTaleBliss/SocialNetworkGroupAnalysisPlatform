@@ -1,4 +1,4 @@
-# infdiffusion
+# SocialNetworkGroupAnalysisPlatform
 &emsp;&emsp;A visualization platform of Social network group analysis.<br>
 # 代码合作原则
 &emsp;&emsp;尽量只添加代码，不要轻易修改代码，若要修改仅修改自己写的代码，不要轻易修改别人写的代码！<br>
