@@ -8,6 +8,7 @@
 &emsp;&emsp;1.https://github.com/WeiMin-Li-visual/infdiffusion<br>
 &emsp;&emsp;2.https://github.com/WeiMin-Li-visual/visualization<br>
 &emsp;&emsp;3.https://github.com/WeiMin-Li-visual/weiboanalysis<br>
+&emsp;&emsp;4.https://github.com/WeiMin-Li-visual/medicalwarehouse<br>
 # 网上学习资料
 &emsp;&emsp;1.Github基本命令： https://www.liaoxuefeng.com/wiki/896043488029600<br>
 &emsp;&emsp;2.前后端框架flask的基础知识： https://www.bilibili.com/video/av19817183<br>
