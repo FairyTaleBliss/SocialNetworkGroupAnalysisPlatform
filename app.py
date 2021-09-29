@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request
 import json
+from gevent import pywsgi
 
 app = Flask(__name__)
 
@@ -136,4 +137,6 @@ def DemonstrationOfCommunityDivisionModel():
     return render_template('DemonstrationOfCommunityDivisionModel.html')
 
 if __name__ == '__main__':
-    app.run()
+    # app.run()
+    server = pywsgi.WSGIServer(('127.0.0.1', 5000), app)
+    server.serve_forever()
