@@ -46,6 +46,24 @@ def aboutUs():
     '''
     return render_template('aboutUs.html')
 
+# 介绍微博可视化模块，跳转服务
+@app.route('/introduceWeiboVisualizationModule')
+def introduceMaximumInfluenceModel():
+    '''
+    TODO
+    :return:
+    '''
+    return render_template('introduceWeiboVisualizationModule.html')
+
+# 微博可视化模块展示，后端服务
+@app.route('/DemonstrationOfWeiboVisualizationModule')
+def DemonstrationOfMaximumInfluenceModel():
+    '''
+    TODO
+    :return:
+    '''
+    return render_template('DemonstrationOfWeiboVisualizationModule.html')
+
 # 介绍群体行为预测模型，跳转服务
 @app.route('/introduceGroupBehaviorPredictionModel')
 def introduceGroupBehaviorPredictionModel():
@@ -99,42 +117,6 @@ def DemonstrationOfGroupSentimentAnalysisModel():
     :return:
     '''
     return render_template('DemonstrationOfGroupSentimentAnalysisModel.html')
-
-# 介绍影响力最大化模型，跳转服务
-@app.route('/introduceMaximumInfluenceModel')
-def introduceMaximumInfluenceModel():
-    '''
-    TODO
-    :return:
-    '''
-    return render_template('introduceMaximumInfluenceModel.html')
-
-# 影响力最大化模型展示，后端服务
-@app.route('/DemonstrationOfMaximumInfluenceModel')
-def DemonstrationOfMaximumInfluenceModel():
-    '''
-    TODO
-    :return:
-    '''
-    return render_template('DemonstrationOfMaximumInfluenceModel.html')
-
-# 介绍社区划分模型，跳转服务
-@app.route('/introduceCommunityDivisionModel')
-def introduceCommunityDivisionModel():
-    '''
-    TODO
-    :return:
-    '''
-    return render_template('introduceCommunityDivisionModel.html')
-
-# 社区划分模型展示，后端服务
-@app.route('/DemonstrationOfCommunityDivisionModel')
-def DemonstrationOfCommunityDivisionModel():
-    '''
-    TODO
-    :return:
-    '''
-    return render_template('DemonstrationOfCommunityDivisionModel.html')
 
 if __name__ == '__main__':
     app.run()
