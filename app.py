@@ -46,23 +46,104 @@ def aboutUs():
     '''
     return render_template('aboutUs.html')
 
-# 介绍微博可视化模块，跳转服务
-@app.route('/introduceWeiboVisualizationModule')
-def introduceMaximumInfluenceModel():
+# 微博转发结构分析，跳转服务
+@app.route('/AnalysisOfWeiboForwardingStructure')
+def AnalysisOfWeiboForwardingStructure():
     '''
     TODO
     :return:
     '''
-    return render_template('introduceWeiboVisualizationModule.html')
+    return render_template('AnalysisOfWeiboForwardingStructure.html')
 
-# 微博可视化模块展示，后端服务
-@app.route('/DemonstrationOfWeiboVisualizationModule')
-def DemonstrationOfMaximumInfluenceModel():
+# 单条微博情感分析，后端服务
+@app.route('/EmotionalAnalysisOfSingleWeibo')
+def EmotionalAnalysisOfSingleWeibo():
     '''
     TODO
     :return:
     '''
-    return render_template('DemonstrationOfWeiboVisualizationModule.html')
+    return render_template('EmotionalAnalysisOfSingleWeibo.html')
+
+# 微博情感整体分析，后端服务
+@app.route('/OverallAnalysisOfWeiboSentiment')
+def OverallAnalysisOfWeiboSentiment():
+    '''
+    TODO
+    :return:
+    '''
+    return render_template('OverallAnalysisOfWeiboSentiment.html')
+
+# 微博情感详细分析，后端服务
+@app.route('/DetailedAnalysisOfWeiboSentiment')
+def DetailedAnalysisOfWeiboSentiment():
+    '''
+    TODO
+    :return:
+    '''
+    return render_template('DetailedAnalysisOfWeiboSentiment.html')
+
+# 介绍SI模型，后端服务
+@app.route('/introduceSIModel')
+def introduceSIModel():
+    '''
+    TODO
+    :return:
+    '''
+    return render_template('introduceSIModel.html')
+
+# SI模型展示，后端服务
+@app.route('/DemonstrationOfSIModel')
+def DemonstrationOfSIModel():
+    '''
+    TODO
+    :return:
+    '''
+    return render_template('DemonstrationOfSIModel.html')
+
+# 介绍SIR模型，后端服务
+@app.route('/introduceSIRModel')
+def introduceSIRModel():
+    '''
+    TODO
+    :return:
+    '''
+    return render_template('introduceSIRModel.html')
+
+# SIR模型展示，后端服务
+@app.route('/DemonstrationOfSIRModel')
+def DemonstrationOfSIRModel():
+    '''
+    TODO
+    :return:
+    '''
+    return render_template('DemonstrationOfSIRModel.html')
+
+# 介绍谣言溯源模型，后端服务
+@app.route('/introduceRumorTraceabilityModel')
+def introduceRumorTraceabilityModel():
+    '''
+    TODO
+    :return:
+    '''
+    return render_template('introduceRumorTraceabilityModel.html')
+
+# 谣言溯源模型展示，后端服务
+@app.route('/DemonstrationOfRumorTraceabilityModel')
+def DemonstrationOfRumorTraceabilityModel():
+    '''
+    TODO
+    :return:
+    '''
+    return render_template('DemonstrationOfRumorTraceabilityModel.html')
+
+# 谣言溯源模型比对，后端服务
+@app.route('/ComparisonOfRumorTraceabilityModel')
+def ComparisonOfRumorTraceabilityModel():
+    '''
+    TODO
+    :return:
+    '''
+    return render_template('ComparisonOfRumorTraceabilityModel.html')
 
 # 介绍群体行为预测模型，跳转服务
 @app.route('/introduceGroupBehaviorPredictionModel')
