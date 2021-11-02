@@ -338,7 +338,7 @@ if __name__ == '__main__':
                           scalers=scalers,
                           dropout=dropout).to(device)
 
-    model.load_state_dict(torch.load(os.path.dirname(__file__) + '/static/data/groupBehaviorPrediction/pma_yp.pt'))
+    model.load_state_dict(torch.load(os.path.dirname(__file__) + '/static/data/groupBehaviorPrediction/pma_yp.pt', map_location='cpu'))
     endtime = datetime.datetime.now()
     print('群体预测模块，模型加载结束！！！')
     print('加载用时：', endtime - starttime)
