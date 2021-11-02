@@ -150,10 +150,10 @@
                      8、群体表示学习：点击开始学习按钮将展开DMGPL模型中的群体表示学习流程。<br>
                      9、预测群体选择：选择某群体，进行群体行为预测过程。<br>
                      10、行为预测过程：点击开始预测按钮开启选择群体的行为事件预测过程。<br>
-                     11、群体行为预测：点击预测结果按钮，展示该群体行为预测的结果，结果用表格形式展出，罗列群体预计参与某事件的概率，其中概率较高的前15行背景色较深，而排名非前15行背景色较浅，其中正样本用红色字体标记，若正样本预测排名在前15内，说明预测准确，该群体的确参加了该正样本事件，否则预测错误。<br>
+                     11、群体行为预测：点击预测结果按钮，展示该群体行为预测的结果，结果用表格形式展出，罗列群体预计参与某事件的概率，其中概率较高的前15行背景色较深，而排名非前15行背景色较浅，其中目标事件用红色字体标记，若目标事件预测排名在前15内，说明预测准确，该群体的确参加了该目标事件，否则预测错误。<br>
                      12、页面说明：为页面的一些介绍，说明内容。<br>
                      13、展示记录：为页面中DMGPL模型演示过程中的一些具体记录内容。<br>
-                     14、群体行为预测正确：若该群体行为预测结果中，正样本事件概率排在前15位以内，则群体行为预测正确。<br>
+                     14、群体行为预测正确：若该群体行为预测结果中，目标事件概率排在前15位以内，则群体行为预测命中。<br>
                      15、总体群体行为预测命中率：所展示的群体的群体行为预测命中率的平均值。<br>
                   </p>
                 </div>
@@ -514,9 +514,9 @@ layui.use(['form', 'element', 'layer', 'util', 'table'], function(){
             temp_data["events"] = events[old_index];
             temp_data["probabilities"] = probabilities[i];
             if(old_index == length-1){
-                temp_data["sampleType"] = "Positive";
+                temp_data["sampleType"] = "目标事件";
             }else{
-                temp_data["sampleType"] = "Negative";
+                temp_data["sampleType"] = "预测事件";
             }
             temp_data["rankId"] = (i+1).toString();
             tabel_data.push(temp_data);
@@ -536,7 +536,7 @@ layui.use(['form', 'element', 'layer', 'util', 'table'], function(){
                 , {field: 'groupId', title: '群体编号', align: 'center', width:140}
                 , {field: 'events', title: '预测参与事件', align: 'center', width:140, sort:true}
                 , {field: 'probabilities', title: '预计参与事件概率', align: 'center', sort:true}
-                , {field: 'sampleType', title: '正负样本', align: 'center', width:140}
+                , {field: 'sampleType', title: '事件类别', align: 'center', width:140}
                 , {field: 'rankId', title: '概率排名', align: 'center', width:160, sort:true}
             ]]
             //注意调用时必须要等table渲染完成后进行调用，可以放到渲染完成事件中调用。
@@ -1017,7 +1017,7 @@ function Layui_SetDataTableRowColor(DivId, Color1, Color2, Color3, Color4, Color
                                 trs[i].style.color = Color2;//字体颜色
                                 trs[i].style.backgroundColor = Color4;//背景颜色
                             }
-                            if(sampleType == "Positive"){
+                            if(sampleType == "目标事件"){
                                 tds[4].style.color = Color5;//醒目字体颜色
                             }
                         }
