@@ -3,227 +3,1194 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SI模型</title>
+    <title>群体行为预测</title>
+    <script src="../static/js/jquery.js"></script>
     <script type="text/javascript" src="../static/layui/layui.js"></script>
     <link rel="stylesheet" href="../static/layui/css/layui.css" media="all">
     <style>
         #container{
             position:absolute;
-            left:20%;
+            left:0%;
+            height: 100%;
+            width:80%;
         }
         #control{
+            position:absolute;
             margin-top:20px;
-            width:20%;
+            right:0%;
             height:100%;
+            width:20%;
+        }
+        #myChart_container{
+            {#position:absolute;#}
+            left:0%;
+            height: 80%;
+            width:100%;
         }
     </style>
 </head>
 <body style="height: 100%; margin: 0">
-<div id="container" style="height: 100%;width:80%;left: 2%"></div>
-<div id="control" style="position: absolute;right: 8%;">
-    <form class="layui-form" method="post" >
+<div id="container">
+    <div id="myChart_container"></div>
+    <div style="text-align: center;"><!--比对表格显示-->
+        <div id="myTableContainer" class="layui-inline" style="display:inline-block;width: 100%;margin: 0 auto;">
+            <table class="layui-hide" id="predictionTable" border="3px" lay-filter="sortFilter" style="margin: 0 auto;"></table>
+        </div>
+    </div>
+</div>
+<div id="control">
+    <form name="theForm1" id="the_form1" class="layui-form layui-form-pane" action="##" onsubmit="return false"
+          method="post" enctype='multipart/form-data'>
         <div class="layui-form-item">
-            <label class="layui-form-label" style="font-size: 20px">感染率</label>
-            <div class="layui-input-block">
-                <input type="text" name="rateSI" placeholder="请输入感染率" autocomplete="off" class="layui-input" >
-                <i class="layui-icon layui-icon-about" title="请输入0-1之间的数值"></i>
+            <label class="layui-form-label" style="width: 48%;">群体展示个数</label>
+            <div class="layui-input-inline" style="width: 45%;">
+                <select name="selectGroupNumber" id="id_selectGroupNumber" lay-verify="required" lay-filter="updateGroupInfo" class="select">
+                    <option value="1">1</option>
+                    <option value="4" selected="selected">4</option>
+                    <option value="8">8</option>
+                </select>
             </div>
         </div>
-        <div class="layui-form-item" >
-            <div class="layui-input-block">
-                <button class="layui-btn" lay-submit lay-filter="*">提交</button>
+{#        <div class="layui-form-item">#}
+{#            <label class="layui-form-label" style="width: 48%;">邻居搜索跳数</label>#}
+{#            <div class="layui-input-inline" style="width: 45%;">#}
+{#                <select name="selectCutoffNumber" id="id_selectCutoffNumber" lay-verify="required" lay-filter="updateGroupInfo" class="select">#}
+{#                    <option value="0">0</option>#}
+{#                    <option value="1" selected="selected">1</option>#}
+{#                    <option value="2">2</option>#}
+{#                </select>#}
+{#            </div>#}
+{#        </div>#}
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width: 48%;">结点最大尺寸</label>
+            <div class="layui-input-inline" style="width: 45%;">
+                <select name="selectMaxSizeNumber" id="id_selectMaxSizeNumber" lay-verify="required" lay-filter="updateGroupInfo" class="select">
+                    <option value="20">20</option>
+                    <option value="40">40</option>
+                    <option value="60" selected="selected">60</option>
+                    <option value="80">80</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width: 48%;">结点增大倍率</label>
+            <div class="layui-input-inline" style="width: 45%;">
+                <select name="selectSizeRateNumber" id="id_selectSizeRateNumber" lay-verify="required" lay-filter="updateGroupInfo" class="select">
+                    <option value="0.05">0.05</option>
+                    <option value="0.1" selected="selected">0.1</option>
+                    <option value="0.5">0.5</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width: 48%;">邻居展示数量</label>
+            <div class="layui-input-inline" style="width: 45%;">
+                <select name="selectNeighbourNumber" id="id_selectNeighbourNumber" lay-verify="required" lay-filter="updateGroupInfo" class="select">
+                    <option value="25">0</option>
+                    <option value="25">25</option>
+                    <option value="50" selected="selected">50</option>
+                    <option value="100">75</option>
+                    <option value="200">100</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width: 48%;">玄图展示开关</label>
+            <div class="layui-input-block" style="width: 45%;">
+                <input type="checkbox" name="close" lay-skin="switch" lay-filter="switchStyle" title="" lay-text="ON|OFF">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width: 48%;">群体局部结构</label>
+            <div class="layui-inline" style="width: 45%;">
+                <button class="layui-btn" id="this_commit1" lay-submit="*" lay-filter="updateGroupInfo" style="width: 100%;">结构刷新</button>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width: 48%;">群体表示学习</label>
+            <div class="layui-inline" style="width: 45%;">
+                <button class="layui-btn" id="this_start_group_learn" style="width: 100%;">开始学习</button>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width: 48%;">预测群体选择</label>
+            <div class="layui-input-inline" style="width: 45%;">
+                <select name="selectGroupIndex" id="id_selectGroupIndex" lay-verify="required" lay-filter="updateGroupInfo" class="select">
+                    <option value="0" selected="selected">1</option>
+                    <option value="1">2</option>
+                    <option value="2">3</option>
+                    <option value="3">4</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width: 48%;">行为预测过程</label>
+            <div class="layui-inline" style="width: 45%;">
+                <button class="layui-btn" id="this_commit3" lay-submit="*" lay-filter="GroupBehaviorPrediction" style="width: 100%;">开始预测</button>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width: 48%;">群体行为预测</label>
+            <div class="layui-inline" style="width: 45%;">
+                <button class="layui-btn" id="this_commit4" lay-submit="*" lay-filter="BehaviorPredictionResults" style="width: 100%;">预测结果</button>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-collapse">
+              <div class="layui-colla-item">
+                <h2 class="layui-colla-title">页面说明</h2>
+                <div class="layui-colla-content">
+                  <p>1、群体局部结构信息网络：展示了由这几个群体成员以及他们的少数邻居构成的局部网络结构。<br>
+                     2、群体展示个数：表示挑选需要展示的群体个数，个数太多将导致无法看清，所以候选条目较少。<br>
+                     3、结点最大尺寸：表示网络结构中单个结点最大能达到的大小尺寸，其中用户结点的大小反映了该用户参与事件/活动的数量。<br>
+                     4、结点增大倍率：表示个体用户每多参加一次事件/活动，结点大小增大多少，结点大小最大不超过结点最大尺寸。<br>
+                     5、邻居展示数量：表示需要展示这些群体结点所邻接的结点的个数，由于展示结点过多将无法看清，所以候选的数量在一个合适观看的程度。<br>
+                     6、玄图展示开关：开启该开关后网络图将转变成玄图展示的样式。<br>
+                     7、群体局部结构：点击结构刷新按钮将重新采样生成群体局部结构信息网络图。<br>
+                     8、群体表示学习：点击开始学习按钮将展开DMGPL模型中的群体表示学习流程。<br>
+                     9、预测群体选择：选择某群体，进行群体行为预测过程。<br>
+                     10、行为预测过程：点击开始预测按钮开启选择群体的行为事件预测过程。<br>
+                     11、群体行为预测：点击预测结果按钮，展示该群体行为预测的结果，结果用表格形式展出，罗列群体预计参与某事件的概率，其中概率较高的前15行背景色较深，而排名非前15行背景色较浅，其中正样本用红色字体标记，若正样本预测排名在前15内，说明预测准确，该群体的确参加了该正样本事件，否则预测错误。<br>
+                     12、页面说明：为页面的一些介绍，说明内容。<br>
+                     13、展示记录：为页面中DMGPL模型演示过程中的一些具体记录内容。<br>
+                     14、群体行为预测正确：若该群体行为预测结果中，正样本事件概率排在前15位以内，则群体行为预测正确。<br>
+                     15、总体群体行为预测命中率：所展示的群体的群体行为预测命中率的平均值。<br>
+                  </p>
+                </div>
+              </div>
+              <div class="layui-colla-item">
+                <h2 class="layui-colla-title">展示记录</h2>
+                <div class="layui-colla-content layui-show" id="page_log" style=" overflow:auto; height: 400px;">当前页面历史记录</div>
+              </div>
             </div>
         </div>
     </form>
 </div>
-
-<script type="text/javascript" src="/static/js/echarts.js"></script>
-<script type="text/javascript" src="/static/js/sifunction.js"></script>
+{#所用到的js库#}
+<script src="../static/layui/layui.js"></script>
+<script src="../static/js/jquery.js"></script>
+<script type="text/javascript" src="../static/js/echarts.js"></script>
+<script type="text/javascript" src="../static/js/echarts.min.js"></script>
+{#自己撰写的本页面的js代码#}
 <script type="text/javascript">
-
-    var dom = document.getElementById("container");
-    var myChart = echarts.init(dom);
-    // 首次显示加载动画
-    //myChart.showLoading();
+layui.use(['form', 'element', 'layer', 'util', 'table'], function(){
+  var element = layui.element
+    ,form = layui.form
+    ,layer = layui.layer
+    ,util = layui.util
+    ,table = layui.table
+    ,$ = layui.$;
+    //代码
+    var chartDom = document.getElementById('myChart_container');
+    var myChart = echarts.init(chartDom);
     var option;
-    var graph = {{ graph_data | tojson }}//获取后端返回的图数据
-    // 隐藏加载动画
-    //myChart.hideLoading();
-    graph = init_graph(graph);  //初始化图数据
-    option = init_option(graph);//初始化属性
-    myChart.setOption(option);//执行该语句就可以根据你设置的属性进行图的生成
+    var GraphInfo;
+    var groupNum = 4;
+    var myLoopJob;
+    var myLoopJob2;
+    var displayStyle = "none";
+    var myChartTitle = "群体局部结构信息";//群体表示学习
+    var index_popupBox = 'index_popupBox';
+    var groupList;//群体集合
+    var groupActSampleSet;//群体行为集合
+    var groupActsPredict;//群体行为预测概率集合
+    var tableDatas;//表格数据
+    //表示学习循环标记
+    var pauseFlag = false;
+    //群体预测循环标记
+    var pauseFlag2 = false;
+    var hitRate = -1;
+    //分阶段展示，第一阶段请求
+    var submitData = {"step": "0"}
 
-    var err={{err|tojson}}
-    if(err=="false") {
-        var susceptible_nodes = {{susceptible_nodes | tojson}};
-        var infected_nodes = {{infected_nodes | tojson}};
-        var edges_record = {{edges_record | tojson}};
-        var sus_node_num = {{sus_node_num}};
-        var inf_node_num = {{inf_node_num}};
-        var times = {{times}};
-        var rateSI ={{rateSI}};
-        susceptible_nodes = JSON.parse(susceptible_nodes);
-        infected_nodes = JSON.parse(infected_nodes);
-        edges_record = JSON.parse(edges_record);
+    //表示学习按钮归零
+    function returnToOriginalState1(){
+        //结束循环
+        myStopFunction(myLoopJob);
+        //表示学习循环标记，归位
+        pauseFlag = false;
+        //按钮归位
+        $('#this_start_group_learn').text('开始学习');
+    }
+    //表示学习按钮归零
+    function returnToOriginalState2(){
+        //结束循环
+        myStopFunction(myLoopJob2);
+        //表示学习循环标记，归位
+        pauseFlag2 = false;
+        //按钮归位
+        $('#this_commit3').text('开始预测');
+    }
+    {#myChart.showLoading();#}
+    layer.load(2);//页面加载动效
+    $.ajax({
+        url: "PredictionPageGetData",
+        type: "POST",
+        dataType: "json",
+        data: submitData,
+        success: function (graph) {
+            {#myChart.hideLoading();#}
+            GraphInfo = graph;
+            groupList = graph["groupList"];
+            groupActSampleSet = graph["groupActSampleSet"];
+            groupActsPredict = graph["groupActsPredict"];
+            hitRate = graph["hitRate"];
+            var selectGroup = document.getElementById('id_selectGroupNumber');
+            var group_num = selectGroup.options[selectGroup.selectedIndex].value;
+            var selectGroupIndex = document.getElementById('id_selectGroupIndex');
+            selectGroupIndex.innerHTML = "<option value="+"0"+" selected="+"selected"+">1</option>";
+            var len = parseInt(group_num);
+            for(var i=2;i<=len;i++){
+                selectGroupIndex.innerHTML += "<option value="+(i-1).toString()+">"+i.toString()+"</option>";
+            }
+            form.render();
+            submitData["step"] = "0";
+            layer.closeAll('loading');
+            if (graph.execute == 'success') {
+                myChartTitle = "群体局部结构信息";
+                option = set_Option(graph,myChartTitle,displayStyle);
+                myChart.setOption(option);
+                addPageLog("局部群体结构加载成功");
+            }
+            else{
+                layer.msg('处理出错！', {icon: 7, time: 2000, shade: [0.6, '#000', true]});
+                addPageLog("局部群体结构加载失败");
+            }
+        },
+        error: function () {
+            layer.msg('处理出错！', {icon: 7, time: 2000, shade: [0.6, '#000', true]});
+            addPageLog("局部群体结构加载失败");
+        }
+    });
 
+    {#option && myChart.setOption(option);#}
 
-        var infnode_steps = infected_nodes.length;
-        var edge_steps = edges_record.length;
-        //console.log(infnode_steps);
-        var text = "SI模型扩散过程";	 //标题
-        var subtext = "";
-
-        var infnode_count = 0;
-        var edge_count = 0;
-        var inf_nodeNum = 0;
-        var edgeNum = 0;
-
-        var node = infected_nodes[infnode_count][inf_nodeNum] - 1;
-        graph.nodes[node].category = 1;
-        graph.nodes[node].symbolSize = 30;
-        update_show(text, subtext, myChart);
-
-        intervalNo = setInterval(() => {
-            if (infnode_count < infnode_steps) {
-                if (inf_nodeNum < infected_nodes[infnode_count].length) {
-                    //下面这几个步骤用于把当前显示节点的当前显示的记录的被激活节点大小和种类变化，然后显示
-                    var node = infected_nodes[infnode_count][inf_nodeNum] - 1;
-                    graph.nodes[node].category = 1;
-                    graph.nodes[node].symbolSize = 30;
-                    inf_nodeNum++;
-                    myChart.setOption({
-                        title: {
-                            subtext: "当前：节点" + node + "被感染\n",
-                        },
-                        series: [
-                            {
-                                data: graph.nodes,
-                                links: graph.links
-                            }
-                        ]
-                    });
+    //监听提交
+    form.on('submit(updateGroupInfo)', function (data) {
+        layer.load(2);//页面加载动效
+        //向量示意图关闭
+        layer.close(index_popupBox);
+        //关闭循环放大，即表示学习过程
+        returnToOriginalState1();//表示学习循环、按钮，归零操作
+        returnToOriginalState2();//群体行为预测循环、按钮，归零操作
+        //命中率展示关闭
+        layer.close(index_popupBox);
+        $('#myTableContainer').hide();
+        pauseFlag = false;
+        $('#this_start_group_learn').text('开始学习');
+        var selectGroup = document.getElementById('id_selectGroupNumber');
+        var group_num = selectGroup.options[selectGroup.selectedIndex].value;
+        {#var selectCutoff = document.getElementById('id_selectCutoffNumber');#}
+        {#var cutoff = selectCutoff.options[selectCutoff.selectedIndex].value;#}
+        var selectMaxSize = document.getElementById('id_selectMaxSizeNumber');
+        var maxSize = selectMaxSize.options[selectMaxSize.selectedIndex].value;
+        var selectSizeRate = document.getElementById('id_selectSizeRateNumber');
+        var sizeRate = selectSizeRate.options[selectSizeRate.selectedIndex].value;
+        var selectNeighbourNumber = document.getElementById('id_selectNeighbourNumber');
+        var neighbourNumber = selectNeighbourNumber.options[selectNeighbourNumber.selectedIndex].value;
+        var postData = {
+            "step": "1",
+            "groupNum":group_num,
+            {#"cutoff": cutoff,#}
+            "maxSize": maxSize,
+            "sizeRate": sizeRate,
+            "neighbourNumber": neighbourNumber
+        };
+        submitData["step"] = "1";
+        groupNum = group_num;
+        var selectGroupIndex = document.getElementById('id_selectGroupIndex');
+        selectGroupIndex.innerHTML = "<option value="+"0"+" selected="+"selected"+">1</option>";
+        var len = parseInt(group_num);
+        for (var i = 2; i <= len; i++) {
+            selectGroupIndex.innerHTML += "<option value=" + (i - 1).toString() + ">" + i.toString() + "</option>";
+        }
+        form.render();
+        //var chartDom = document.getElementById('container');
+        //var myChart = echarts.init(chartDom);
+        //var option;
+        {#myChart.showLoading();#}
+        $.ajax({
+            url: "PredictionPageGetData",
+            type: "POST",
+            dataType: "json",
+            data: postData,
+            success: function (graph) {
+                GraphInfo = graph;
+                groupList = graph["groupList"];
+                groupActSampleSet = graph["groupActSampleSet"];
+                groupActsPredict = graph["groupActsPredict"];
+                hitRate = graph["hitRate"];
+                layer.closeAll('loading');
+                {#myChart.hideLoading();#}
+                if (graph.execute == 'success') {
+                    myChartTitle = "群体局部结构信息";
+                    option = set_Option(graph,myChartTitle,displayStyle);
+                    myChart.setOption(option);
+                    addPageLog("局部群体结构刷新成功");
                 } else {
-                    inf_nodeNum = 0;
-                    infnode_count++;
-                    if (infnode_count === infnode_steps) {
-                        myChart.setOption({
-                            title: {
-                                x: 'center',
-                                text: 'SI传播结果图',
-                                subtext:'感染率：'+ rateSI ,
-                                textStyle: {
-                                    fontSize: 24,
-                                    fontWeight: 'bolder',
-                                    color: '#000000'                             // 主标题文字颜色
-                                    },
-                                subtextStyle: {
-                                    fontSize: 18,
-                                    color: '#323232'                            // 副标题文字颜色
-                                }
-                            },
-                            grid: {
-                                x: 50,
-                                y: 100,
-                                x2: 150,
-                                y2: 80,
-                                borderColor: '#ccc'
-                            },
-                            tooltip: {
-                                trigger: 'axis',  // 坐标轴触发，主要在柱状图，折线图等会使用类目轴的图表中使用。
-                            },
-                            legend: {
-                                data: ['inf_node_num'],
-                            },
-                            dataZoom: [
-                                {
-                                    show: false,
-                                    realtime: true,
-                                },
-                                {
-                                    type: 'inside',
-                                    realtime: true,
-                                }
-                            ],
-                            xAxis: {
-                                type: 'category',
-                                data: times
-                            },
-                            yAxis: {},
-                            series: [
-                                {
-                                    name: '易感节点数',
-                                    color: '#2f4554',
-                                    data: sus_node_num,
-                                    type: 'line',
+                    layer.msg('处理出错！', {icon: 7, time: 2000, shade: [0.6, '#000', true]});
+                    addPageLog("局部群体结构刷新失败");
+                }
+            },
+            error: function () {
+                layer.msg('处理出错！', {icon: 7, time: 2000, shade: [0.6, '#000', true]});
+                addPageLog("局部群体结构刷新失败");
+            }
+        });
+        return false;
+    });
 
-                                },
-                                {
-                                    name: '感染节点数',
-                                    color: '#ff0000',
-                                    data: inf_node_num,
-                                    type: 'line'
-                                },
+    //自定义弹出层样式
+    layer.config({
+        extend:"../../../skin/skin.css",
+    });
+    function popupBox(index,popupTitle,myImg,popupContent,area_size){
+        //弹出框设置
+        popupContent = myImg +'<br>'+popupContent
+        index_popupBox = layer.open({
+            id: index,
+            type: 1,
+            area: area_size,//弹框的大小（宽，高），默认：'auto'
+            title: popupTitle,//弹框的标题
+            content: popupContent,//显示的消息内容
+            closeBtn: 0,//消除关闭按钮
+            btn: [],//清空按钮
+            shade: 0,//关闭钟罩
+            isOutAnim: false,//关闭过度动画
+            resize: false,//不允许窗口拉伸
+            fixed: false,//鼠标滚动时，不固定在可视区域
+            move: false,//禁止拖拽弹框
+            offset: 'lt',//位置，左上角
+            skin: 'myskin',
+        });
+    }
 
-                            ]
-                        });
+    {#layer.close(index_popupBox);#}
+
+    //监听按钮点击，（开始群体表示学习，step 2）
+    $('#this_start_group_learn').on('click', function () {
+        // 控制按钮事件，控制群体表示学习过程是否开始
+        if (pauseFlag == true) {
+            pauseFlag = false;
+            $('#this_start_group_learn').text('开始学习');
+            myStopFunction(myLoopJob);
+            addPageLog("停止群体表示学习");
+            //命中率展示关闭
+            layer.close(index_popupBox);
+        } else {
+            pauseFlag = true;
+            $('#this_start_group_learn').text('停止学习');
+            //命中率展示关闭
+            layer.close(index_popupBox);
+            addPageLog("开始群体表示学习");
+            {#fun(GraphInfo, myChart);#}
+            //myLoopJob = setInterval(function () {myTimer();}, 1000);
+            var graphChange = deepCloneByJson(GraphInfo);
+            var currentCategory = 0;
+            var enlargeFlag = false;//结点大小，放缩标志
+            var groupNodeList = new Array();
+            var allNodeNum = getAllNodeNumExceptNeighbour(graphChange.nodes, groupNum);
+            var tempIndex = 0;
+
+            //彩蝶循环动态展示示意思路
+            {#fun(GraphInfo,myChart);#}
+            //循环动态展示思路，群体内逐个群体放大（表示学习过程），群体内学习完，整个群体放大（表示群体学习），再下一个群体展示学习过程
+            myLoopJob = setInterval(function () {
+                //myTimer();
+                if(tempIndex <= allNodeNum && currentCategory < groupNum){
+                    var tempNode = graphChange.nodes[tempIndex];
+                    //console.log(tempNode['category']);
+                    if (tempNode['category'] == currentCategory) {
+                        if (enlargeFlag == true) {
+                            //缩小结点，回归原始大小，存在该群体大小集合的当前最后一个
+                            nodeSize = getSizeFromNode(groupNodeList[groupNodeList.length-1]);
+                            graphChange.nodes[tempIndex]['symbolSize'] = nodeSize;
+                            //console.log(nodeSize);
+                            //var tempOption = update_show(graphChange);
+                            //myChart.setOption(tempOption);
+                            var tempOption = set_Option(graphChange,myChartTitle,displayStyle);
+                            myChart.setOption(tempOption);
+                            //console.log("缩小结点");
+                            //开始该类别群体中下一个用户结点，的表示学习
+                            tempIndex++;
+                            //标志归位，下一轮进行判断，并回应以放大
+                            enlargeFlag = false;
+                            //向量示意图关闭
+                            layer.close(index_popupBox);
+                        }
+                        else {
+                            //个体向量示意图展示
+                            var myImg = '<img style="width: 180px;height: 30px;" src="../static/image/IndividualLearning.gif">';
+                            var popupTitle = 'ID:'+ graphChange.nodes[tempIndex]['id'];
+                            var popupContent = "个体表示学习"
+                            var area_size =['180px', '115px'];
+                            popupBox(index_popupBox,popupTitle,myImg,popupContent,area_size);
+                            {#nodeListSize.push(graphChange.nodes[tempIndex]['symbolSize']);#}
+                            cloneNode = deepCloneByJson(tempNode);
+                            groupNodeList.push(cloneNode);
+                            //放大结点
+                            graphChange.nodes[tempIndex]['symbolSize'] = 100;
+                            //var tempOption = update_show(graphChange);
+                            //myChart.setOption(tempOption);
+                            var tempOption = set_Option(graphChange,myChartTitle,displayStyle);
+                            myChart.setOption(tempOption);
+                            //console.log("放大结点");
+                            //标志归位，下一轮进行判断，并回应以缩小
+                            enlargeFlag = true;
+                            addPageLog("个体"+popupTitle+"进行表示学习");
+                        }
                     } else {
-                        inf_sum = infected_nodes[infnode_count].length
-                        text = "第" + infnode_count + "时间步的扩散过程\n" + "当前时间片新增感染节点共有" + inf_sum + "个\n";
-                        update_show(text, subtext, myChart);
+                        //当循环过程中，结点类别发生变化，说明上一个群体表示学习完成
+                        if (enlargeFlag == true) {
+                            //缩小群体，回归原始大小，存在groupNodeList中
+                            for(var i=tempIndex-groupNodeList.length,k=0;i<tempIndex;i++,k++){
+                                nodeSize = getSizeFromNode(groupNodeList[k]);
+                                graphChange.nodes[i]['symbolSize'] = nodeSize;
+                            }
+                            //var tempOption = update_show(graphChange);
+                            //myChart.setOption(tempOption);
+                            var tempOption = set_Option(graphChange,myChartTitle,displayStyle);
+                            myChart.setOption(tempOption);
+                            //console.log("缩小群体");
+                            //群体集合归位，下一个群体存储
+                            groupNodeList = new Array();
+                            //标志归位，下一轮进行判断，并回应以放大
+                            enlargeFlag = false;
+                            //开始下一个群体类别，的表示学习
+                            currentCategory++;
+                            //循环结束标志，循环完成边界，表示学习结束标志
+                            if(currentCategory >= groupNum){
+                                submitData["step"] = "2";
+                                //循环完成，结束循环，按钮设置归零
+                                returnToOriginalState1();
+                                addPageLog("整个局部群体表示学习完成！");
+                            }
+                            //向量示意图关闭
+                            layer.close(index_popupBox);
+                        }
+                        else {
+                            //群体向量示意图展示
+                            var myImg = '<img style="width: 180px;height: 80px;" src="../static/image/GroupLearning.gif">';
+                            var popupTitle = 'ID:'+ graphChange.nodes[tempIndex-1]['value'].toString();
+                            var popupContent = "群体表示学习"
+                            var area_size =['180px', '175px'];
+                            popupBox(index_popupBox,popupTitle,myImg,popupContent,area_size);
+                            //放大群体
+                            for(var i=tempIndex-groupNodeList.length;i<tempIndex;i++){
+                                graphChange.nodes[i]['symbolSize'] = 100;
+                            }
+                            //var tempOption = update_show(graphChange);
+                            //myChart.setOption(tempOption);
+                            var tempOption = set_Option(graphChange,myChartTitle,displayStyle);
+                            myChart.setOption(tempOption);
+                            //console.log("放大群体");
+                            //标志归位，下一轮进行判断，并回应以缩小
+                            enlargeFlag = true;
+                            addPageLog("群体"+popupTitle+"进行表示学习");
+                        }
+                        //开始下一个群体类别，的表示学习
+                        {#currentCategory++;#}
+                    }
+                }
+            }, 1000);
+        }
+    });
+
+    //封装成一个方法，用于模块化调用，某群体预测结果表格展示
+    function getTableDataByGroupId(group_index){
+        var groupId = groupList[group_index];
+        var events = deepCloneByJson(groupActSampleSet[group_index]);
+        var probabilities = deepCloneByJson(groupActsPredict[group_index]);
+        var index = arrayKeys(probabilities);
+        //归并排序，并保留原始序号顺序
+        mergeSort(probabilities,index,"asc");
+        var length = index.length;
+        var tabel_data = new Array();
+        for(var i=0;i<length;i++){
+            var temp_data = {};
+            var old_index = parseInt(index[i]);
+            temp_data["index"] = (old_index+1).toString();
+            temp_data["groupId"] = groupId;
+            temp_data["events"] = events[old_index];
+            temp_data["probabilities"] = probabilities[i];
+            if(old_index == length-1){
+                temp_data["sampleType"] = "Positive";
+            }else{
+                temp_data["sampleType"] = "Negative";
+            }
+            temp_data["rankId"] = (i+1).toString();
+            tabel_data.push(temp_data);
+        }
+        return tabel_data;
+    }
+
+    //封装成一个方法，用于模块化调用，某群体预测结果表格展示
+    function showTableOfPredictResult(table_data){
+        //增加数据表格
+        table.render({
+            elem: '#predictionTable'
+            , cellMinWidth: 80 //全局定义常规单元格的最小宽度，layui 2.2.1 新增
+            , data: table_data
+            , cols: [[
+                {field: 'index', title: '序号', align: 'center', sort:true, width:100}
+                , {field: 'groupId', title: '群体编号', align: 'center', width:140}
+                , {field: 'events', title: '预测参与事件', align: 'center', width:140, sort:true}
+                , {field: 'probabilities', title: '预计参与事件概率', align: 'center', sort:true}
+                , {field: 'sampleType', title: '正负样本', align: 'center', width:140}
+                , {field: 'rankId', title: '概率排名', align: 'center', width:160, sort:true}
+            ]]
+            //注意调用时必须要等table渲染完成后进行调用，可以放到渲染完成事件中调用。
+            , done: function (res, curr, count) {
+                Layui_SetDataTableRowColor('myTableContainer', '#000000', '#000000', '#BEBEBE', '#E0E0E0', "#AE0000");
+            }
+            , page: true
+            , limits: [15,30,60,120]
+            , limit: 15
+        });
+    }
+
+    //监听按钮点击，（展示群体行为预测过程，step 3）
+    $('#this_commit3').on('click', function () {
+        // 控制按钮事件，控制群体表示学习过程是否开始
+        if (pauseFlag2 == true) {
+            pauseFlag2 = false;
+            $('#this_commit3').text('开始预测');
+            myStopFunction(myLoopJob2);
+            addPageLog("停止群体行为预测");
+        } else {
+            if (submitData["step"] == "2") {
+                pauseFlag2 = true;
+                $('#this_commit3').text('停止预测');
+                addPageLog("开始群体行为预测");
+                $('#myTableContainer').show();
+                //命中率展示关闭
+                layer.close(index_popupBox);
+                var predictGroupId = document.getElementById('id_selectGroupIndex');
+                var group_index = predictGroupId.options[predictGroupId.selectedIndex].value;
+                var table_data = getTableDataByGroupId(parseInt(group_index));
+                var loopIndex = 0;
+                var loopLength = table_data.length;
+                var table_data_oneline = new Array();
+                //循环动态展示思路，
+                myLoopJob2 = setInterval(function () {
+                    if (loopIndex < loopLength) {
+                        var oneline = table_data[loopIndex];
+                        table_data_oneline.unshift(oneline);
+                        showTableOfPredictResult(table_data_oneline);
+                        tableDatas = table_data_oneline;
+                        addPageLog("群体:" + oneline["groupId"] + "预测参与行为事件:" + oneline["events"] + "概率为:" + oneline["probabilities"]);
+                        loopIndex++;
+                    }
+                    //循环结束标志，循环完成边界，表示学习结束标志
+                    else{
+                        //循环完成，结束循环，按钮设置归零
+                        returnToOriginalState2();
+                        addPageLog("整个群体行为预测完成！");
+                        //弹出层展示最终群体行为命中率
+                        var myImg = "";
+                        var popupTitle = '预测命中率';
+                        var popupContent = "所展示群体的行为预测命中率为：" + hitRate.toString();
+                        var area_size = ['180px', '120px'];
+                        popupBox(index_popupBox, popupTitle, myImg, popupContent, area_size);
+                        addPageLog("所展示群体的行为预测命中率为："+hitRate.toString());
+                    }
+                }, 1000);
+            } else {
+                layer.msg('请先进行群体行为表示学习！', {icon: 7, time: 2000, shade: [0.6, '#000', true]});
+                addPageLog("未进行群体行为表示学习，不能进行群体行为预测");
+            }
+        }
+    });
+
+    //监听按钮点击，（展示群体行为预测结果，step 3）
+    $('#this_commit4').on('click', function () {
+        if(submitData["step"] == "2"){
+            $('#myTableContainer').show();
+            //循环完成，结束循环，按钮设置归零
+            returnToOriginalState2();
+            //命中率展示关闭
+            layer.close(index_popupBox);
+            var predictGroupId = document.getElementById('id_selectGroupIndex');
+            var group_index = predictGroupId.options[predictGroupId.selectedIndex].value;
+            var table_data = getTableDataByGroupId(parseInt(group_index));
+            showTableOfPredictResult(table_data);
+            tableDatas = table_data;
+            addPageLog("展示群体:"+group_index.toString()+"的行为预测结果");
+            //弹出层展示最终群体行为命中率
+            var myImg = "";
+            var popupTitle = '预测命中率';
+            var popupContent = "所展示选群体的行为预测命中率为："+hitRate.toString();
+            var area_size = ['180px', '120px'];
+            popupBox(index_popupBox, popupTitle, myImg, popupContent, area_size);
+            addPageLog("所展示群体的行为预测命中率为："+hitRate.toString());
+        }else{
+            layer.msg('请先进行群体行为表示学习！', {icon: 7, time: 2000, shade: [0.6, '#000', true]});
+            addPageLog("未进行群体行为表示学习，不能进行群体行为预测");
+        }
+    });
+
+    //监听指定开关，控制关系图呈现方式，圆式玄图，还是随机位置的笛卡尔位置
+    form.on('switch(switchStyle)', function (data) {
+        {#layer.msg('开关checked：' + (this.checked ? 'true' : 'false'), {#}
+        {#    offset: '6px'#}
+        //{#});#}
+        {#layer.tips('温馨提示：请注意开关状态的文字可以随意定义，而不仅仅是ON|OFF', data.othis)#}
+        //layer.msg(displayStyle);
+        if(this.checked){
+            displayStyle = "circular";
+            addPageLog("局部群体结构玄图模式呈现");
+        }else{
+            displayStyle = "none";
+            addPageLog("局部群体结构坐标模式呈现");
+        }
+        var new_option = set_Option(GraphInfo,myChartTitle,displayStyle);
+        myChart.setOption(new_option);
+    });
+
+    // 监听表格排序，自定义排序(全部数据排序)，并重新渲染表格
+    table.on('sort(sortFilter)', function (obj) {
+        let type = obj.type,
+            field = obj.field,
+            data = tableDatas,//表格的配置Data
+            thisData = [];
+        if (type === 'asc') { //升序
+            thisData = layui.sort(data, field);
+        } else if (type === 'desc') { //降序
+            thisData = layui.sort(data, field, true);
+        } else { //清除排序
+            thisData = tableDatas;
+        }
+        //将排好序的Data重载表格
+        table.reload('predictionTable', {
+            initSort: obj,
+            data: thisData
+        });
+    });
+
+    //弹窗示意图，向量表示示意图
+    {#var myImg = '<img style="width: 180px;height: 30px;" src="../static/image/vector.png">';#}
+    {#var popupTitle = 'ID:123456';#}
+    {#var popupContent = "个体表示学习"#}
+    {#var area_size =['180px', '115px'];#}
+    {#var area_size =['180px', '175px'];#}
+    {#popupBox(index_popupBox,popupTitle,myImg+'<br>'+myImg+'<br>'+myImg,popupContent,area_size);#}
+    {#//监听表格排序问题(当前分页数据排序)，并重新渲染表格#}
+    {#table.on('sort(sortFilter)', function (obj) { //注：tool是工具条事件名，test是table原始容器的属性 lay-filter="对应的值"#}
+        {#console.log(obj.field); //当前排序的字段名#}
+        {#console.log(obj.type); //当前排序类型：desc（降序）、asc（升序）、null（空对象，默认排序）#}
+        {#console.log(this); //当前排序的 th 对象#}
+    {##}
+    {#    //尽管我们的 table 自带排序功能，但并没有请求服务端。#}
+    {#    //有些时候，你可能需要根据当前排序的字段，重新向服务端发送请求，从而实现服务端排序，如：#}
+    {#    table.reload('predictionTable', { //testTable是表格容器id#}
+    {#        initSort: obj //记录初始排序，如果不设的话，将无法标记表头的排序状态。 layui 2.1.1 新增参数#}
+    {#        , where: { //请求参数（注意：这里面的参数可任意定义，并非下面固定的格式）#}
+    {#            field: obj.field //排序字段#}
+    {#            , order: obj.type //排序方式#}
+    {#        }#}
+    {#    });#}
+    //{#});#}
+});
+//根据graph数据信息设置图表的option样式
+function initOption(graph){
+    var option;
+    graph.nodes.forEach(function (node) {
+        node.label = {
+            show: node.symbolSize > 20
+        };
+    });
+    option = {
+        title: {
+            text: '群体局部结构信息',
+            subtext: 'Default layout',
+            top: 'bottom',
+            left: 'center'
+        },
+        tooltip: {},
+        legend: [
+            {
+                // selectedMode: 'single',
+                data: graph.categories.map(function (a) {
+                    return a.name;
+                })
+            }
+        ],
+        animationDuration: 1500,
+        animationEasingUpdate: 'quinticInOut',
+        series: [
+            {
+                name: '节点信息',
+                type: 'graph',
+                layout: 'circular',
+                circular: {
+                  rotateLabel: true
+                },
+                data: graph.nodes,
+                links: graph.links,
+                categories: graph.categories,
+                roam: true,
+                label: {
+                    position: 'right',
+                    formatter: '{b}'
+                },
+                lineStyle: {
+                    color: 'source',
+                    curveness: 0.3,
+                }
+                {#,emphasis: {#}
+                {#    focus: 'adjacency',#}
+                {#    lineStyle: {#}
+                {#        width: 10#}
+                {#    }#}
+                //{#}#}
+            }
+        ],
+        {#color:["#4992ff","#7cffb2","#fddd60","#ff6e76","#58d9f9","#05c091","#ff8a45","#8d48e3","#dd79ff",'#4f19c7',#}
+        {#       '#c71969', '#c71919', '#1984c7', '#c76919', '#8419c7', '#c79f19', '#c78419', '#c719b9','#199fc7',#}
+        {#       '#9f19c7', '#69c719', '#19c719', '#1919c7', '#c74f19', '#19c7b9', '#9fc719', '#c7b919','#b9c719',#}
+        {#       '#3419c7', '#19b9c7', '#34c719', '#19c784', '#c7199f', '#1969c7', '#c71984', '#1934c7','#84c719',#}
+        {#       '#194fc7', '#c7194f', '#19c74f', '#b919c7', '#19c769', '#19c79f', '#4fc719', '#c73419','#19c734',#}
+        {#       '#6919c7', '#c71934'],#}
+        {#backgroundColor:"#100C2A"#}
+    };
+    return option;
+}
+//图表更新
+function set_Option(graph,titleText,layoutStyle) {
+    var option;
+    graph.nodes.forEach(function (node) {
+        node.label = {
+            show: node.symbolSize > 20
+        };
+    });
+    option = {
+        title: {
+            text: titleText,
+            subtext: 'Default layout',
+            top: 'bottom',
+            left: 'center'
+        },
+        tooltip: [
+            {
+                zlevel: 0,
+                z: 60,
+                show: true,
+                showContent: true,
+                trigger: "item",
+                triggerOn: "mousemove|click",
+                alwaysShowContent: false,
+                displayMode: "single",
+                renderMode: "auto",
+                confine: null,
+                showDelay: 0,
+                hideDelay: 100,
+                transitionDuration: 0.4,
+                enterable: false,
+                backgroundColor: "#fff",
+                shadowBlur: 10,
+                shadowColor: "rgba(0, 0, 0, .2)",
+                shadowOffsetX: 1,
+                shadowOffsetY: 2,
+                borderRadius: 4,
+                borderWidth: 1,
+                padding: null,
+                extraCssText: "",
+                axisPointer:{
+                    type: "line",
+                    axis: "auto",
+                    animation: "auto",
+                    animationDurationUpdate: 200,
+                    animationEasingUpdate: "exponentialOut",
+                    crossStyle:{
+                        color: "#999",
+                        width: 1,
+                        type: "dashed",
+                        textStyle:{}
+                    }
+                },
+                textStyle: {
+                    color: "#666",
+                    fontSize: 14
+                },
+                formatter: function (params) {
+                    var str = "";
+                    if(params.dataType=="node"){
+                        str += '<span style="display:inline-block;margin-right:5px;border-radius:50%;width:10px;height:10px;left:5px;background-color:' + params.color + '"></span>' + "用户ID：" + params.name + "<br />";
+                        str += '<span style="display:inline-block;margin-right:5px;border-radius:50%;width:10px;height:10px;left:5px;background-color:' + params.color + '"></span>' + "群体ID：" + params.value.toString() + "<br />";
+                    }else if(params.dataType=="edge"){
+                        str += '源节点：'+params.data.source+" --> 靶节点："+params.data.target;
+                    }
+                    return str;
+                }
+            }
+        ],
+        legend: [
+            {
+                // selectedMode: 'single',
+                data: graph.categories.map(function (a) {
+                    return a.name;
+                })
+            }
+        ],
+        animationDuration: 1500,
+        animationEasingUpdate: 'quinticInOut',
+        stateAnimation:{
+            duration:300,
+            easing:"cubicOut"
+        },
+        animation: true,
+        animationDurationUpdate:500,
+        animationEasing:"cubicInOut",
+        animationThreshold:2000,
+        progressiveThreshold: 3000,
+        progressive: 400,
+        hoverLayerThreshold: 3000,
+        series: [
+            {
+                name: '节点信息',
+                type: 'graph',
+                layout: layoutStyle,
+                circular: {
+                  rotateLabel: true
+                },
+                data: graph.nodes,
+                links: graph.links,
+                categories: graph.categories,
+                roam: true,
+                animation: false,
+                focusNodeAdjacency: true,
+                label: {
+                    position: 'right',
+                    formatter: '{b}'
+                },
+                lineStyle: {
+                    color: 'source',
+                    curveness: 0.3,
+                    width: 1,
+                    opacity: 0.5
+                },
+                emphasis: {
+                    focus: "adjacency",
+                    lineStyle: {
+                        width: 10
+                    },
+                    scale: true,
+                    label:{
+                        show: true
+                    },
+                    edgeLabel:{}
+                },
+                zlevel: 0,
+                z: 2,
+                coordinateSystem: "view",//坐标系统
+                legendHoverLink: true,
+                force: {
+                    repulsion: [0,50],
+                    gravity: 0.1,
+                    friction: 0.6,
+                    edgeLength: 30,
+                    layoutAnimation: true
+                },
+                left: "center",
+                top: "center",
+                symbol: "circle",
+                symbolSize: 10,
+                edgeSymbol: ["none","none"],
+                edgeSymbolSize: 10,
+                edgeLabel: {
+                    position:"middle",
+                    distance:5
+                },
+                zoom: 1,//当前视角缩放比例
+                nodeScaleRatio: 0.6,
+                itemStyle: {},
+                select:{
+                    itemStyle: {
+                        borderColor:"#212121"
                     }
                 }
             }
-            if (edge_count < edge_steps) {
-                if (edgeNum < edges_record[edge_count].length) {
-                    console.log(edges_record[edge_count][edgeNum]);
-                    console.log(graph.links[edges_record[edge_count][edgeNum]]);
-                    console.log(edge_count);
-                    graph.links[edges_record[edge_count][edgeNum]].lineStyle.width = 5;
-                    graph.links[edges_record[edge_count][edgeNum]].lineStyle.color = 'rgba(255, 0, 0, 0.7)';
-                    edgeNum++;
-                    myChart.setOption({
-                        series: [
-                            {
-                                data: graph.nodes,
-                                links: graph.links
+        ],
+        color:['#5470c6','#91cc75',"#fac858",'#ee6666',
+               "#73c0de",'#3ba272','#fc8452','#9a60b4',
+               "#ADADAD"],
+        {#color:[#}
+        {#       "#91cc75","#ee6666","#73c0de",#}
+        {#       "#fc8452","#9a60b4",#}
+        {#       "#ea7ccc","#7cffb2","#fddd60","#ff6e76",#}
+        {#       "#58d9f9","#05c091","#4992ff","#ff8a45",#}
+        {#       "#8d48e3","#dd79ff",'#4f19c7','#c71969',#}
+        {#       '#c71919', '#1984c7', '#c76919', '#8419c7',#}
+        {#       '#c79f19', '#c78419', '#199fc7',#}
+        {#       '#9f19c7', '#69c719',#}
+        {#        '#19c7b9', '#9fc719', '#c7b919',#}
+        {#       '#b9c719','#3419c7', '#19b9c7', '#34c719',#}
+        {#       '#19c784', '#c7199f', '#1969c7', '#c71984',#}
+        {#       '#1934c7','#84c719','#194fc7', '#c7194f',#}
+        {#       '#19c74f', '#b919c7', '#19c769', '#19c79f',#}
+        {#       '#4fc719', '#c73419','#19c734',#}
+        {#       ],#}
+        {#color:["#4992ff","#7cffb2","#fddd60","#ff6e76","#58d9f9","#05c091","#ff8a45","#8d48e3","#dd79ff",'#4f19c7',#}
+        {#       '#c71969', '#c71919', '#1984c7', '#c76919', '#8419c7', '#c79f19', '#c78419', '#c719b9','#199fc7',#}
+        {#       '#9f19c7', '#69c719', '#19c719', '#1919c7', '#c74f19', '#19c7b9', '#9fc719', '#c7b919','#b9c719',#}
+        {#       '#3419c7', '#19b9c7', '#34c719', '#19c784', '#c7199f', '#1969c7', '#c71984', '#1934c7','#84c719',#}
+        {#       '#194fc7', '#c7194f', '#19c74f', '#b919c7', '#19c769', '#19c79f', '#4fc719', '#c73419','#19c734',#}
+        {#       '#6919c7', '#c71934'],#}
+        {#backgroundColor:"#100C2A"#}
+    };
+    return option;
+}
+//需要停止循环的方法，根据循环任务ID
+function myStopFunction(loopID) {
+    clearInterval(loopID);
+}
+//从给定结点中获取size大小
+function getSizeFromNode(node){
+    return node['symbolSize'];
+}
+//获取邻居以外，群体集合中所有的结点数
+function getAllNodeNumExceptNeighbour(nodes, groupNum){
+    var allNodeNum = 0;
+    for(var i=0;i<nodes.length;i++){
+        var tempNode = nodes[i];
+        if(tempNode['category'] < groupNum){
+            allNodeNum++;
+        }else {
+            return allNodeNum;
+        }
+    }
+    return allNodeNum;
+}
+//通过js的内置对象JSON来进行数组对象的深拷贝
+function deepCloneByJson(obj) {
+  var _obj = JSON.stringify(obj),
+    objClone = JSON.parse(_obj);
+  return objClone;
+}
+//格式为：2010-10-20 10:00:00，输入时间戳alert(getLocalTime(1177824835));
+function getNowTime() {
+    var date = new Date();
+    var year = date.getFullYear()
+    var month = date.getMonth() + 1;
+    var day = date.getDate();
+    var hour = date.getHours();
+    var minute = date.getMinutes();
+    var second = date.getSeconds();
+    month = (month < 10 ? "0" + month : month);
+    day = (day < 10 ? "0" + day : day);
+    return year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second;
+}
+//给页面面板记录增加过程记录，追加一条信息放最前面一行
+function addPageLog(logText) {
+    var oldInnerHTML = $('#page_log')[0].innerHTML;
+    //获取时间戳
+    var timesFormat = getNowTime();
+    $('#page_log').html(timesFormat + "<br>" + logText + "<br>" + oldInnerHTML);
+}
+//循环延迟
+function sleep(delay) {
+  var start = (new Date()).getTime();
+  while ((new Date()).getTime() - start < delay) {
+    continue;
+  }
+}
+//设置layui datatable的某一行的颜色
+//DivId:datatable父div的 id;RowIndex:行序列号；Color：颜色字符串，如'#FF3030'
+function Layui_SetDataTableRowColor(DivId, Color1, Color2, Color3, Color4, Color5) {
+    try {
+        var div = document.getElementById(DivId);
+        if (div != null) { //找到对象了
+            var table_main = div.getElementsByClassName('layui-table-main');   //通过class获取table_main
+            if (table_main != null && table_main.length > 0) {
+                var table = table_main[0].getElementsByClassName('layui-table');   //通过class获取table
+                if (table != null && table.length > 0) {
+                    var trs = table[0].querySelectorAll("tr");
+                    if (trs != null && trs.length > 0) {
+                        for (var i = 0; i < trs.length; i++) {
+                            var tds = trs[i].querySelectorAll("td");
+                            var sampleType = tds[4].getElementsByClassName("layui-table-cell")[0].textContent;
+                            var rankId = tds[5].getElementsByClassName("layui-table-cell")[0].textContent;
+                            if (parseInt(rankId) <= 15) {
+                                trs[i].style.color = Color1;//字体颜色
+                                trs[i].style.backgroundColor = Color3;//背景颜色
+                            } else {
+                                trs[i].style.color = Color2;//字体颜色
+                                trs[i].style.backgroundColor = Color4;//背景颜色
                             }
-                        ]
-                    });
-                } else {
-                    edgeNum = 0;
-                    edge_count++;
-                    update_show(text, subtext, myChart);
+                            if(sampleType == "Positive"){
+                                tds[4].style.color = Color5;//醒目字体颜色
+                            }
+                        }
+                    }
                 }
             }
-        }, 50);
+        }
+    } catch (e) {
+        console.log(e.message);
+        layer.msg(e.message, {icon: 7, time: 2000, shade: [0.6, '#000', true]});
     }
-    else{
-        if(err!="true")//输入错误提示
-        {
-            layui.use('layer', function(){
-              var layer = layui.layer;
-              //layer.msg(err);
-                layer.alert(err,
-                    {icon:6,title:"提示",offset: "0px", skin: 'layui-layer-molv' })
-            });
+}
+//获取原数组，对应的下标值，keys
+function arrayKeys(arr) {
+    var i = 0,
+        len = arr.length,
+        keys = [];
+    while (i < len) {
+        keys.push(i++);
+    }
+    return keys;
+}
+// 判断变量是否为数组
+function isArray(arr) {
+    return ({}).toString.call(arr).match(/^\[[^\s]+\s*([^\s]+)\]$/)[1] == 'Array';
+}
+// 归并排序(过程：从下向上)
+function mergeSort(arr, key, order) {
+    if (!isArray(arr)) return [];
+    var key = isArray(key) ? key : [];
+    // 对数组arr做若干次合并：数组arr的总长度为len，将它分为若干个长度为gap的子数组；
+    // 将"每2个相邻的子数组" 进行合并排序。
+    // len = 数组的长度，gap = 子数组的长度
+    function mergeGroups(arr, len, gap) {
+        // 对arr[0..len)做一趟归并排序
+        // 将"每2个相邻的子数组"进行合并排序
+        for (var i = 0; i + 2 * gap - 1 < len; i += gap * 2) {
+            merge(arr, i, i + gap - 1, i + 2 * gap - 1);  // 归并长度为len的两个相邻子数组
+        }
+        // 注意：
+        // 若i ≤ len - 1且i + gap - 1 ≥ len - 1时，则剩余一个子数组轮空，无须归并
+        // 若i + gap - 1 < len - 1，则剩余一个子数组没有配对
+        // 将该子数组合并到已排序的数组中
+        if (i + gap - 1 < len - 1) {                              // 尚有两个子文件，其中后一个长度小于len - 1
+            merge(arr, i, i + gap - 1, len - 1);           // 归并最后两个子数组
         }
     }
 
-    // 更新画面
-    function update_show(text, subtext, myChart) {
-        myChart.setOption({
-            title: {
-                text: text,
-                subtext: subtext
-            },
-            series: [{
-                data: graph.nodes,
-                links: graph.links
-            }]
-        })
+    // 核心排序过程
+    function merge(arr, start, mid, end) {
+        var i = start;      // 第1个有序区的索引，遍历区间是：arr数组中的[start..mid]
+        var j = mid + 1;    // 第2个有序区的索引，遍历区间是：arr数组中的[mid + 1..end]
+        var aTmp = [];     // 汇总2个有序区临时数组
+        var kTmp = [];
+        var isAsc = (order + '').toLowerCase() !== 'desc';
+        /* 排序过程开始 */
+        while (i <= mid && j <= end) {   // 遍历2个有序区，当该while循环终止时，2个有序区必然有1个已经遍历并排序完毕
+            if ((!isAsc && arr[i] <= arr[j]) || (isAsc && arr[i] >= arr[j])) {  // 并逐个从2个有序区分别取1个数进行比较，将较小的数存到临时数组aTmp中
+                aTmp.push(arr[i]);
+                kTmp.push(key[i++]);
+            } else {
+                aTmp.push(arr[j]);
+                kTmp.push(key[j++]);
+            }
+        }
+        // 将剩余有序区的剩余元素添加到临时数组aTmp中
+        while (i <= mid) {
+            aTmp.push(arr[i]);
+            kTmp.push(key[i++]);
+        }
+        while (j <= end) {
+            aTmp.push(arr[j]);
+            kTmp.push(key[j++]);
+        }　　　　　　  /*排序过程结束*/
+        var len = aTmp.length, k;
+        // 此时，aTmp数组是经过排序后的有序数列，然后将其重新整合到数组arr中
+        for (k = 0; k < len; k++) {
+            arr[start + k] = aTmp[k];
+            key[start + k] = kTmp[k];
+        }
     }
 
+    // 归并排序(从下往上)
+    return (function (arr) {
+        // 采用自底向上的方法，对arr[0..len)进行二路归并排序
+        var len = arr.length;
+        if (len <= 0) return arr;
+        for (var i = 1; i < len; i *= 2) {   // 共log2(len - 1)趟归并
+            mergeGroups(arr, len, i);        // 有序段长度 ≥ len时终止
+        }
+    })(arr);
+}
+// 数组原型链方法
+Array.prototype.mergeSort = function (key, order) {
+    var key = ({}).toString.call(key) == '[object Array]' ? key : [];
 
-    </script>
+    function mergeGroups(arr, len, gap) {
+        for (var i = 0; i + 2 * gap - 1 < len; i += gap * 2) {
+            merge(arr, i, i + gap - 1, i + 2 * gap - 1);
+        }
+        if (i + gap - 1 < len - 1) {
+            merge(arr, i, i + gap - 1, len - 1);
+        }
+    }
+
+    // 核心排序过程
+    function merge(arr, start, mid, end) {
+        var i = start;
+        var j = mid + 1;
+        var aTmp = [];
+        var kTmp = [];
+        var isAsc = (order + '').toLowerCase() !== 'desc';
+        /* 排序过程开始 */
+        while (i <= mid && j <= end) {
+            if ((isAsc && arr[i] <= arr[j]) || (!isAsc && arr[i] >= arr[j])) {
+                aTmp.push(arr[i]);
+                kTmp.push(key[i++]);
+            } else {
+                aTmp.push(arr[j]);
+                kTmp.push(key[j++]);
+            }
+        }
+        while (i <= mid) {
+            aTmp.push(arr[i]);
+            kTmp.push(key[i++]);
+        }
+        while (j <= end) {
+            aTmp.push(arr[j]);
+            kTmp.push(key[j++]);
+        }　　　　　　　/*排序过程结束*/
+        var len = aTmp.length, k;
+        for (k = 0; k < len; k++) {
+            arr[start + k] = aTmp[k];
+            key[start + k] = kTmp[k];
+        }
+    }
+
+    // 归并排序(从下往上)
+    return (function (arr) {
+        var len = arr.length;
+        if (len <= 0) return arr;
+        for (var i = 1; i < len; i *= 2) {
+            mergeGroups(arr, len, i);
+        }
+        return arr;
+    })(this);
+};
+//彩蝶循环动态展示思路提供
+function fun(GraphInfo,myChart){
+
+    var graphChange = GraphInfo;
+    {#console.log(graphChange.nodes);#}
+    var currentCategory = 0;
+    var tempIndex = 0;
+    var selectMaxSize = document.getElementById('id_selectMaxSizeNumber');
+    var maxSize = selectMaxSize.options[selectMaxSize.selectedIndex].value;
+
+    var size = 100;
+    myLoopJob = setInterval(function () {
+        graphChange = GraphInfo;
+        graphChange.nodes[0]['symbolSize'] = size;
+        var tempOption = update_show(graphChange);
+        myChart.setOption(tempOption);
+        console.log("放大");
+        //结点放大一定时间，展示
+        if(size == 100){
+            size = 1;
+        }else{
+            size = 100;
+        }
+
+    }, 2000);
+}
+</script>
 </body>
 </html>
