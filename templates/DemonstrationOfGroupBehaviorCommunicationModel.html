@@ -3,98 +3,341 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SI模型</title>
+    <title>群体行为传播</title>
+    <script src="../static/js/jquery.js"></script>
     <script type="text/javascript" src="../static/layui/layui.js"></script>
     <link rel="stylesheet" href="../static/layui/css/layui.css" media="all">
     <style>
-        #container{
-            position:absolute;
-            left:20%;
+        #container {
+            position: absolute;
+            left: 20%;
         }
-        #control{
-            margin-top:20px;
-            width:20%;
-            height:100%;
+
+        #control {
+            margin-top: 20px;
+            width: 20%;
+            height: 100%;
         }
     </style>
 </head>
 <body style="height: 100%; margin: 0">
 <div id="container" style="height: 100%;width:80%;left: 2%"></div>
 <div id="control" style="position: absolute;right: 8%;">
-    <form class="layui-form" method="post" >
+    <form class="layui-form" method="post">
+        {#        <div class="layui-form-item">#}
+        {#            <label class="layui-form-label" style="font-size: 20px">请输入源节点id</label>#}
+        {#            <div class="layui-input-block">#}
+        {#                <input type="text" name="source_id" placeholder="请输入" autocomplete="off" class="layui-input"#}
+        {#                       id="source_node_id">#}
+        {#                <i class="layui-icon layui-icon-about" title="请输入0-1之间的数值"></i>#}
+        {#            </div>#}
+        {#        </div>#}
         <div class="layui-form-item">
-            <label class="layui-form-label" style="font-size: 20px">感染率</label>
+            <label class="layui-form-label" style="font-size: 20px">选择群体</label>
             <div class="layui-input-block">
-                <input type="text" name="rateSI" placeholder="请输入感染率" autocomplete="off" class="layui-input" >
-                <i class="layui-icon layui-icon-about" title="请输入0-1之间的数值"></i>
+                <select name="select_node" lay-filter="updateGroupInfo" class="select">
+                    <option value="全部">全部</option>
+{#                    {% for source_node in source_nodes %}#}
+{#                        <option value="{{ source_node }}">{{ source_node }}</option>#}
+{#                    {% endfor %}#}
+                    <option value="964">群体1</option>
+                    <option value="1085">群体2</option>
+                    <option value="196">群体3</option>
+                    <option value="1404">群体4</option>
+                    <option value="1398">群体5</option>
+                    <option value="875">群体6</option>
+                    <option value="1455">群体7</option>
+                    <option value="99">群体8</option>
+                    <option value="298">群体9</option>
+                    <option value="393">群体10</option>
+                    <option value="265">群体11</option>
+                    <option value="968">群体12</option>
+                    <option value="1224">群体13</option>
+                    <option value="1026">群体14</option>
+                    <option value="1209">群体15</option>
+                    <option value="988">群体16</option>
+                    <option value="1378">群体17</option>
+                    <option value="592">群体18</option>
+                    <option value="21">群体19</option>
+                    <option value="1397">群体20</option>
+                </select>
             </div>
         </div>
-        <div class="layui-form-item" >
+
+        <div class="layui-form-item">
             <div class="layui-input-block">
                 <button class="layui-btn" lay-submit lay-filter="*">提交</button>
             </div>
         </div>
     </form>
 </div>
-
-<script type="text/javascript" src="/static/js/echarts.js"></script>
-<script type="text/javascript" src="/static/js/sifunction.js"></script>
+{#所用到的js库#}
+<script src="../static/layui/layui.js"></script>
+<script src="../static/js/jquery.js"></script>
+<script type="text/javascript" src="../static/js/echarts.js"></script>
+<script type="text/javascript" src="../static/js/echarts.min.js"></script>
+{#自己撰写的本页面的js代码#}
 <script type="text/javascript">
+    layui.use(['form'], function () {
+        var form = layui.form;
+        form.render();
+    })
 
+    {% if alert %}
+        alert("该节点不是源节点，请重新输入");
+    {% endif %}
     var dom = document.getElementById("container");
+    {#var source_node_id = document.getElementById("source_node_id").value//获得输入的源节点的值#}
     var myChart = echarts.init(dom);
-    // 首次显示加载动画
-    //myChart.showLoading();
-    var option;
+    var app = {};
+    option = null;
     var graph = {{ graph_data | tojson }}//获取后端返回的图数据
-    // 隐藏加载动画
-    //myChart.hideLoading();
-    graph = init_graph(graph);  //初始化图数据
-    option = init_option(graph);//初始化属性
+        graph = JSON.parse(graph)
+    console.log(graph)
+    //设置节点的种类
+    var categories = [];
+    categories[0] = {
+        name: '未激活节点',
+        itemStyle: {
+            color: '#2f4554'
+        }
+    }
+    categories[1] = {
+        name: '群体1',
+        itemStyle: {
+            color: '#9FE6B8'
+        }
+    };
+    categories[2] = {
+        name: '群体2',
+        itemStyle: {
+            color: '#FFDB5C'
+        }
+    };
+    categories[3] = {
+        name: '群体3',
+        itemStyle: {
+            color: '#ff9f7f'
+        }
+    };
+    categories[4] = {
+        name: '群体4',
+        itemStyle: {
+            color: '#fb7293'
+        }
+    };
+    categories[5] = {
+        name: '群体5',
+        itemStyle: {
+            color: '#E062AE'
+        }
+    };
+    categories[6] = {
+        name: '群体6',
+        itemStyle: {
+            color: '#E690D1'
+        }
+    };
+    categories[7] = {
+        name: '群体7',
+        itemStyle: {
+            color: '#e7bcf3'
+        }
+    };
+    categories[8] = {
+        name: '群体8',
+        itemStyle: {
+            color: '#9d96f5'
+        }
+    };
+    categories[9] = {
+        name: '群体9',
+        itemStyle: {
+            color: '#8378EA'
+        }
+    };
+    categories[10] = {
+        name: '群体10',
+        itemStyle: {
+            color: '#96BFFF'
+        }
+    };
+    categories[11] = {
+        name: '群体11',
+        itemStyle: {
+            color: '#759aa0'
+        }
+    };
+    categories[12] = {
+        name: '群体12',
+        itemStyle: {
+            color: '#e69d87'
+        }
+    };
+    categories[13] = {
+        name: '群体13',
+        itemStyle: {
+            color: '#8dc1a9'
+        }
+    };
+    categories[14] = {
+        name: '群体14',
+        itemStyle: {
+            color: '#ea7e53'
+        }
+    };
+    categories[15] = {
+        name: '群体15',
+        itemStyle: {
+            color: '#eedd78'
+        }
+    };
+    categories[16] = {
+        name: '群体16',
+        itemStyle: {
+            color: '#73a373'
+        }
+    };
+    categories[17] = {
+        name: '群体17',
+        itemStyle: {
+            color: '#73b9bc'
+        }
+    };
+    categories[18] = {
+        name: '群体18',
+        itemStyle: {
+            color: '#bda29a'
+        }
+    };
+    categories[19] = {
+        name: '群体19',
+        itemStyle: {
+            color: '#91ca8c'
+        }
+    };
+    categories[20] = {
+        name: '群体20',
+        itemStyle: {
+            color: '#f49f42'
+        }
+    };
+
+    //给节点的属性进行操作
+    graph.nodes.forEach(function (node) {
+        node.itemStyle = null;
+        node.symbolSize = 15;
+        node.value = node.symbolSize;
+        node.category = node.attributes.modularity_class;
+        // Use random x, y
+        node.x = Math.random() % myChart.getWidth();
+        node.y = Math.random() % myChart.getHeight();
+        node.draggable = true;
+    });
+    //设置要生成的图的相关属性
+    option = {
+        {#title: {#}
+        {#    text: '',#}
+        {#    subtext: '',#}
+        {#    top: 'bottom',#}
+        {#    left: 'right'#}
+        //{#},#}
+        tooltip: {},
+        legend: [{
+            // selectedMode: 'single',
+            data: categories.map(function (a) {
+                return a.name;
+            })
+        }],
+        animationDuration: 1500,
+        animationEasingUpdate: 'quinticInOut',
+        series: [
+            {
+                name: '',
+                type: 'graph',
+                layout: 'none',
+                //下面三项分别设置节点数据，边数据，种类数据
+                data: graph.nodes,
+                links: graph.links,
+                categories: categories,
+                roam: true,//是否开启鼠标缩放和平移漫游。默认不开启。如果只想要开启缩放或者平移，可以设置成 'scale' 或者 'move'。设置成 true 为都开启
+                animation: false,
+                focusNodeAdjacency: true,//是否在鼠标移到节点上的时候突出显示节点以及节点的边和邻接节点。
+                itemStyle: {//图形样式，有 normal 和 emphasis 两个状态。normal 是图形在默认状态下的样式；emphasis 是图形在高亮状态下的样式，比如在鼠标悬浮或者图例联动高亮时。
+                    normal: {
+                        borderColor: '#fff',
+                        borderWidth: 1,
+                        shadowBlur: 10,
+                        shadowColor: 'rgba(0, 0, 0, 0.3)'
+                    }
+                },
+                label: {//图形上的文本标签，可用于说明图形的一些数据信息
+                    position: 'right',
+                    formatter: '{b}'
+                },
+                lineStyle: {
+                    color: 'target',//决定边的颜色是与起点相同还是与终点相同
+                    curveness: 0.3//边的曲度，支持从 0 到 1 的值，值越大曲度越大。
+                },
+                emphasis: {
+                    lineStyle: {
+                        width: 10
+                    }
+                },
+                force: { //力引导图基本配置
+                    repulsion: 270//节点之间的斥力因子。支持数组表达斥力范围，值越大斥力越大。
+                }
+            }
+        ]
+    };
+
     myChart.setOption(option);//执行该语句就可以根据你设置的属性进行图的生成
+    var nodes_20 = {{ nodes_20 | tojson }};
+    nodes_20 = JSON.parse(nodes_20);
+    var display = {{ display | tojson }};
+    display = JSON.parse(display);
+    var source_nodes = {{ source_nodes }};
+    {#source_nodes = JSON.parse(source_nodes);#}
+    var nodes_show = {{ nodes_show }};
 
-    var err={{err|tojson}}
-    if(err=="false") {
-        var susceptible_nodes = {{susceptible_nodes | tojson}};
-        var infected_nodes = {{infected_nodes | tojson}};
-        var edges_record = {{edges_record | tojson}};
-        var sus_node_num = {{sus_node_num}};
-        var inf_node_num = {{inf_node_num}};
-        var times = {{times}};
-        var rateSI ={{rateSI}};
-        susceptible_nodes = JSON.parse(susceptible_nodes);
-        infected_nodes = JSON.parse(infected_nodes);
-        edges_record = JSON.parse(edges_record);
+    console.log("nodes_show", nodes_show);
+
+    var index_ = 0;
+    var x_axis = new Array();//横坐标的值
+    var x_axis_index = 1;
+    x_axis[x_axis_index-1] = x_axis_index;
+    var series_data = new Array();//存储折线值的数组
+    var series_data_index = 0;//折线值数组的下标
+    var series_data_num = 0;//折线值
+    //下面通过setInterval函数进行不断从激活节点的记录中读取数据然后不断显示
+    {% if nodes_show %}
+        {% if show_group %}
+            console.log(nodes_show)
+            interval_no = setInterval(function () {
+                    series_data_num = 0;
+                    console.log("setInterval", index_, nodes_show[index_])
+                    let end = true;
+                    for (let k = 0, l = index_; l >= 0; k++, l--) { //k是第几个群体
+                        if (nodes_show[k] !== undefined) {
+                            now_nodes = nodes_show[k][l]
+                            if (now_nodes !== undefined) {
+                                end = false;
+                                console.log("a", " nodes_show[" + k + "][" + l + "]: ", now_nodes)
+
+                                for (let j = 0; j < now_nodes.length; j++) {
+                                    let index = getArrayIndex(display, now_nodes[j]);
+                                    graph.nodes[index].category = k + 1;
+                                    graph.nodes[index].symbolSize = 20;
+                                    series_data_num++;//记录每个时间点显示的节点数目
+                                }
+                            }
+                        }
+                    }
+                    series_data[series_data_index] = series_data_num;//将每个时间点显示的节点数目保存到series_data数组当中
+                    console.log("setInterval", index_)
 
 
-        var infnode_steps = infected_nodes.length;
-        var edge_steps = edges_record.length;
-        //console.log(infnode_steps);
-        var text = "SI模型扩散过程";	 //标题
-        var subtext = "";
-
-        var infnode_count = 0;
-        var edge_count = 0;
-        var inf_nodeNum = 0;
-        var edgeNum = 0;
-
-        var node = infected_nodes[infnode_count][inf_nodeNum] - 1;
-        graph.nodes[node].category = 1;
-        graph.nodes[node].symbolSize = 30;
-        update_show(text, subtext, myChart);
-
-        intervalNo = setInterval(() => {
-            if (infnode_count < infnode_steps) {
-                if (inf_nodeNum < infected_nodes[infnode_count].length) {
-                    //下面这几个步骤用于把当前显示节点的当前显示的记录的被激活节点大小和种类变化，然后显示
-                    var node = infected_nodes[infnode_count][inf_nodeNum] - 1;
-                    graph.nodes[node].category = 1;
-                    graph.nodes[node].symbolSize = 30;
-                    inf_nodeNum++;
                     myChart.setOption({
-                        title: {
-                            subtext: "当前：节点" + node + "被感染\n",
-                        },
                         series: [
                             {
                                 data: graph.nodes,
@@ -102,85 +345,75 @@
                             }
                         ]
                     });
-                } else {
-                    inf_nodeNum = 0;
-                    infnode_count++;
-                    if (infnode_count === infnode_steps) {
+                    index_ += 1;
+                    if (index_ > nodes_show.length - 1 && end) {
+                        clearInterval(interval_no);
                         myChart.setOption({
-                            title: {
-                                x: 'center',
-                                text: 'SI传播结果图',
-                                subtext:'感染率：'+ rateSI ,
-                                textStyle: {
-                                    fontSize: 24,
-                                    fontWeight: 'bolder',
-                                    color: '#000000'                             // 主标题文字颜色
-                                    },
+                            title:{
+                                x:'center',
+                                text:'群体行为传播图',
+                                textStyle:{
+                                    fontsize:24,
+                                    fontWeight:'bolder',
+                                    color:'#000000'
+                                },
+                                subtext: '节点数量变化趋势',
                                 subtextStyle: {
-                                    fontSize: 18,
-                                    color: '#323232'                            // 副标题文字颜色
-                                }
+                                    fontsize: 18,
+                                    color: '#000000'
+                                },
+                                top: 'auto',
                             },
-                            grid: {
+                            tooltip:{ //提示框
+                                trigger:'axis',
+                            },
+                            legend:{ //折线数据
+                                data:['传播的节点数目']
+                            },
+                            grid:{ //图标距边框的距离
                                 x: 50,
                                 y: 100,
-                                x2: 150,
+                                x2: 180,
                                 y2: 80,
                                 borderColor: '#ccc'
                             },
-                            tooltip: {
-                                trigger: 'axis',  // 坐标轴触发，主要在柱状图，折线图等会使用类目轴的图表中使用。
-                            },
-                            legend: {
-                                data: ['inf_node_num'],
-                            },
-                            dataZoom: [
-                                {
-                                    show: false,
-                                    realtime: true,
-                                },
-                                {
-                                    type: 'inside',
-                                    realtime: true,
-                                }
-                            ],
-                            xAxis: {
+                            xAxis:{
+                                name: '时间',
                                 type: 'category',
-                                data: times
+                                data: x_axis
                             },
-                            yAxis: {},
-                            series: [
+                            yAxis:{
+                                name: '节点数量'
+                            },
+                            series:[
                                 {
-                                    name: '易感节点数',
-                                    color: '#2f4554',
-                                    data: sus_node_num,
-                                    type: 'line',
-
-                                },
-                                {
-                                    name: '感染节点数',
+                                    name: '传播节点数',
                                     color: '#ff0000',
-                                    data: inf_node_num,
+                                    data: series_data,
                                     type: 'line'
-                                },
-
+                                }
                             ]
                         });
-                    } else {
-                        inf_sum = infected_nodes[infnode_count].length
-                        text = "第" + infnode_count + "时间步的扩散过程\n" + "当前时间片新增感染节点共有" + inf_sum + "个\n";
-                        update_show(text, subtext, myChart);
+                    }
+                    else{
+                        x_axis_index++;
+                        x_axis[x_axis_index-1] = x_axis_index;
+                        series_data_index++;
                     }
                 }
-            }
-            if (edge_count < edge_steps) {
-                if (edgeNum < edges_record[edge_count].length) {
-                    console.log(edges_record[edge_count][edgeNum]);
-                    console.log(graph.links[edges_record[edge_count][edgeNum]]);
-                    console.log(edge_count);
-                    graph.links[edges_record[edge_count][edgeNum]].lineStyle.width = 5;
-                    graph.links[edges_record[edge_count][edgeNum]].lineStyle.color = 'rgba(255, 0, 0, 0.7)';
-                    edgeNum++;
+                , 2000);
+        {% else %}
+            var show_group_id = {{ show_group_id }};
+            node_show = nodes_show[show_group_id];
+            interval_no = setInterval(function () {
+                    console.log("setInterval", index_, node_show[index_])
+                    var length_column = node_show[index_].length;
+                    for (var j = 0; j < length_column; j++) {
+                        var index = getArrayIndex(display, node_show[index_][j]);
+                        graph.nodes[index].category = show_group_id + 1;
+                        graph.nodes[index].symbolSize = 20;
+                    }
+
                     myChart.setOption({
                         series: [
                             {
@@ -189,41 +422,64 @@
                             }
                         ]
                     });
-                } else {
-                    edgeNum = 0;
-                    edge_count++;
-                    update_show(text, subtext, myChart);
+                    index_ += 1;
+                    if (index_ > node_show.length - 1) {
+                        clearInterval(interval_no);
+                    }
                 }
+                , 2000);
+        {% endif %}
+    {% endif %}
+
+    //下面通过setInterval函数进行不断从激活节点的记录中读取数据然后不断显示
+
+
+    {#var symple = 0; //nodes_20列表中第几列#}
+    {#var node_index = getArrayIndex(display, source_node_id);//得到源节点在display数组中的索引值#}
+    {#var nodes_20_index = get2DArrayIndex(display, source_node_id); //nodes_20列表的第几行，也就是第几条边#}
+    {#var spread_node_id = nodes_20[nodes_20_index, 1];//获得第一个扩散节点的id#}
+    {#var spread_nodes_index = getArrayIndex(display, spread_node_id); //获得第一个扩散节点的索引#}
+
+
+    /*
+    * 获取某个元素下标
+    * arr: 传入的数组
+    * obj: 需要获取下标的元素
+    * */
+
+    function getArrayIndex(arr, obj) {
+        var i = arr.length;
+        while (i--) {
+            if (arr[i] === obj) {
+                return i;
             }
-        }, 50);
-    }
-    else{
-        if(err!="true")//输入错误提示
-        {
-            layui.use('layer', function(){
-              var layer = layui.layer;
-              //layer.msg(err);
-                layer.alert(err,
-                    {icon:6,title:"提示",offset: "0px", skin: 'layui-layer-molv' })
-            });
         }
+        return -1;
     }
 
-    // 更新画面
-    function update_show(text, subtext, myChart) {
-        myChart.setOption({
-            title: {
-                text: text,
-                subtext: subtext
-            },
-            series: [{
-                data: graph.nodes,
-                links: graph.links
-            }]
-        })
+    function get2DArrayIndex(arr, obj) {
+        var length = arr.length;
+        var i = 0;
+        for (; i < length; i++) {
+            if (obj == arr[i][0]) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    function exist(arr, obj) {
+        var length = arr.length;
+        var i = 0;
+        for (; i < length; i++) {
+            if (arr[i] == obj) {
+                return 1;
+            }
+        }
+        return 0;
     }
 
 
-    </script>
+</script>
 </body>
 </html>
