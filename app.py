@@ -11,6 +11,7 @@ from algorithm.groupBehaviorPrediction.LSTMGCNPMAgbp import LSTMGCNPMAGbp
 import sqlite3
 from gevent import pywsgi
 import os
+import os
 
 # 微博可视化部分添加的库
 import pandas as pd
