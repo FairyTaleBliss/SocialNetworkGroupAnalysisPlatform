@@ -3,6 +3,7 @@ import json
 import random
 import numpy as np
 import pandas as pd
+import os
 
 #初始化网络
 def init_network(data_path):
@@ -91,7 +92,7 @@ def init_network(data_path):
     graph_data = json.dumps(graph_data_json)
     return network, node_num, graph_data
 
-path='static/data/Wiki.txt'
+path = os.path.dirname(os.path.dirname(__file__)) + '/static/data/Wiki.txt'
 networkTemp, number_of_nodes, graph_data = init_network(path)
 network_synfix, num_nodes_synfix, graph_data_synfix = init_network(path)
 data = pd.read_table(path,header=None)
