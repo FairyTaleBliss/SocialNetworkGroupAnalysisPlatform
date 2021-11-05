@@ -46,8 +46,8 @@ from flask_mail import Mail, Message
 
 
 # 微博可视化部分支撑
-data_path = 'static/data/weibo'
-data_path_cache = 'static/data/weibo/analysis_cache'
+data_path = os.path.dirname(__file__) + '/static/data/weibo'
+data_path_cache = os.path.dirname(__file__) + '/static/data/weibo/analysis_cache'
 
 def load_wb_data(path):
     weibo = pd.read_csv(path)
@@ -550,9 +550,10 @@ def senti_diffusion_position():
     position_wc = create_gif(buff, data_path_cache + '/result/position_wc.gif')  # 生成时间词云动态gif图
     return position_count, position_wc
 
-weibo, num_wb = load_wb_data('static/data/weibo/weibo.csv')
-user, num_ur = load_ur_data('static/data/weibo/userInfo.csv')
-repost = Repost('static/data/weibo/repost.csv')
+weibo, num_wb = load_wb_data(os.path.dirname(__file__) + '/static/data/weibo/weibo.csv')
+user, num_ur = load_ur_data(os.path.dirname(__file__) + '/static/data/weibo/userInfo.csv')
+repost_file_path = os.path.dirname(__file__) + '/static/data/weibo/repost.csv'
+repost = Repost(repost_file_path)#os.path.dirname(__file__) + '/static/data/weibo/repost.csv')
 
 
 # 谣言可视化部分支撑
@@ -713,7 +714,7 @@ def send():
     mail.send(msg)
     return jsonify({'code': veriCode, 'ischecked': 1})
 
-
+# 登录后台服务
 @app.route('/login', methods=["GET", "POST"])
 def login():
     if request.method == 'GET':
@@ -755,11 +756,6 @@ def fun():
 @app.route('/')
 def index():
     return render_template('index.html')
-
-# 登录后台服务
-@app.route('/login')
-def login():
-    return render_template('login.html')
 
 # 获得已登录用户信息服务（暂时写死，后期改成读取数据库用户信息表）
 @app.route('/getUserInfo', methods=["POST"])

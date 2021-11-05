@@ -1,6 +1,6 @@
 #!/usr/bin/python3.6
 # -*- coding: utf-8 -*-
-
+import os
 '''
     Implements the Louvain method.
     Input: a weighted undirected graph
@@ -332,7 +332,7 @@ from ast import literal_eval
 import copy
 # author: 刘艳霞
 
-data_path = 'static/data/synfix/z_3/synfix_3.t01.edges'
+data_path = os.path.dirname(os.path.dirname(__file__)) + '/static/data/synfix/z_3/synfix_3.t01.edges'
 pyl = PyLouvain.from_file(data_path)
 Communitys, q = pyl.apply_method()  # 对网络划分分区
 Num = len(list(chain.from_iterable(Communitys)))

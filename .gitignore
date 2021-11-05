@@ -1,2 +1,3 @@
 #忽略模型输入数据yelp_m10a3
 #static/data/groupBehaviorPrediction
+static/data/weibo/weibo.csv
