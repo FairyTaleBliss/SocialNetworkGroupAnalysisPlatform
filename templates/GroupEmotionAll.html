@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html style="height: 100%; initial-scale: 0.1">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>群体情感计算</title>
+    <script src="../static/js/jquery.js"></script>
+    <script type="text/javascript" src="../static/layui/layui.js"></script>
+    <link rel="stylesheet" href="../static/layui/css/layui.css" media="all">
+    <style>
+        #all{
+            position:absolute;
+            left:0%;
+            height: 60%;
+            width:40%;
+            margin-left:20px;
+        }
+        #main{
+            position:absolute;
+            left:40%;
+            height: 60%;
+            width:40%;
+            margin-left:20px;
+        }
+        #zhexian_chart{
+            position:absolute;
+            left:0%;
+            margin-top:300px;
+            height: 80%;
+            width:95%;
+            margin-left:20px;
+        }
+        #control{
+            position:absolute;
+            margin-top:20px;
+            right:0%;
+            height:100%;
+            width:30%;
+        }
+        .layui-form-label {
+             width: 20px;
+        }
+    </style>
+</head>
+<body style="height: 100%; margin: 0">
+    <div id="all"></div>
+    <div id="main"></div>
+    <div id="zhexian_chart"></div>
+    <div id="control">
+        <form name="theForm1" id="the_form1" class="layui-form layui-form-pane" action="##" onsubmit="return false"
+              method="post" enctype='multipart/form-data'>
+            <div class="layui-form-item">
+                <label class="layui-form-label">选择群体</label>
+                <div class="layui-input-inline" style="width: 40%;">
+                    <select name="selectCutoffNumber" id="id_selectCutoffNumber" lay-verify="required" lay-filter="changeValue" class="select">
+                        <option value="1" selected="selected">群体1情感分布</option>
+                        <option value="2" >群体2情感分布</option>
+                        <option value="3" >群体3情感分布</option>
+                        <option value="4">群体4情感分布</option>
+                        <option value="5">群体5情感分布</option>
+                        <option value="6">群体6情感分布</option>
+                        <option value="7">群体7情感分布</option>
+                    </select>
+                </div>
+            </div>
+{#            <div class="layui-form-item">#}
+{#                <div class="layui-inline" style="width: 45%;">#}
+{#                    <button class="layui-btn" id="this_commit1" lay-submit="*" lay-filter="updateGroupInfo" style="width: 100%;">查询</button>#}
+{#                </div>#}
+{#            </div>#}
+        </form>
+    </div>
+<script src="../static/layui/layui.js"></script>
+<script src="../static/js/jquery.js"></script>
+<script type="text/javascript" src="../../static/js/echarts.js"></script>
+<script type="text/javascript" src="../../static/js/echarts.js/echarts.min.js"></script>
+<script type="text/javascript">
+layui.use(['layer', 'jquery', 'form','table'], function () {
+    var layer = layui.layer,
+        $ = layui.jquery,
+        form = layui.form,
+        table = layui.table;
+    {#type EChartsOption = echarts.EChartsOption;#}
+    var chartDom_all = document.getElementById('all');
+    var myChart_all = echarts.init(chartDom_all);
+    var chartDom = document.getElementById('main');
+    var myChart = echarts.init(chartDom);
+    var option1;
+    var option2;
+
+        $.ajax({
+        url: "grouporiginal",
+        type: "POST",
+        dataType: "json",
+        contentType:"application/json;charset=UTF-8",
+        data: JSON.stringify({"groupnum":0}),
+        success: function (newData) {
+            option1 = {
+              title: {
+                text: '所有用户初始情感分布',
+                left: 'center'
+              },
+              tooltip: {
+                trigger: 'item'
+              },
+              legend: {
+                orient: 'vertical',
+                left: 'left'
+              },
+              series: [
+                {
+                  name: 'Access From',
+                  type: 'pie',
+                  radius: '50%',
+                    label:{            //饼图图形上的文本标签
+                    normal:{
+                        show:true,
+                        position:'inner', //标签的位置
+                        textStyle : {
+                            fontWeight : 300 ,
+                            fontSize : 16    //文字的字体大小
+                        },
+                        formatter:'{d}%'
+                    }
+                    },
+                  data: [
+                    { value: newData.positive_number, name: '积极情感' },
+                    { value: newData.negative_number, name: '消极情感' },
+                  ],
+                  emphasis: {
+                    itemStyle: {
+                      shadowBlur: 10,
+                      shadowOffsetX: 0,
+                      shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                  }
+                }
+              ]
+            };
+            myChart_all.setOption(option1);
+        }
+    });
+
+    form.on('select(changeValue)', function (data) {
+        groupnum = data.value
+
+        $.ajax({
+        url: "grouporiginal",
+        type: "POST",
+        dataType: "json",
+        contentType:"application/json;charset=UTF-8",
+        data: JSON.stringify({"groupnum":groupnum}),
+        success: function (newData) {
+            option2 = {
+              title: {
+                text: '群体'+groupnum+'初始情感分布',
+                left: 'center'
+              },
+              tooltip: {
+                trigger: 'item'
+              },
+              legend: {
+                orient: 'vertical',
+                left: 'left'
+              },
+              series: [
+                {
+                  name: 'Access From',
+                  type: 'pie',
+                  radius: '50%',
+                    label:{            //饼图图形上的文本标签
+                    normal:{
+                        show:true,
+                        position:'inner', //标签的位置
+                        textStyle : {
+                            fontWeight : 300 ,
+                            fontSize : 16    //文字的字体大小
+                        },
+                        formatter:'{d}%'
+                    }
+                    },
+                  data: [
+                    { value: newData.positive_number, name: '积极情感' },
+                    { value: newData.negative_number, name: '消极情感' },
+                  ],
+                  emphasis: {
+                    itemStyle: {
+                      shadowBlur: 10,
+                      shadowOffsetX: 0,
+                      shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                  }
+                }
+              ]
+            };
+            myChart.setOption(option2);
+        }
+    });
+    });
+    option1 && myChart_all.setOption(option1);
+    option2 && myChart.setOption(option2);
+});
+
+layui.use(['element', 'layer', 'util'], function(){
+  var element = layui.element
+  ,layer = layui.layer
+  ,util = layui.util
+  ,$ = layui.$;
+
+	var day_array = [];
+    var group0_array = [];
+    var group1_array = [];
+    var group2_array = [];
+    var group3_array = [];
+    var group4_array = [];
+    var group5_array = [];
+    var group6_array = [];
+    var group7_array = [];
+
+    var envirChart = echarts.init(document.getElementById("zhexian_chart"));
+
+    var envirOption = {
+    		 grid:{
+    			x:35,
+ 				y:30,
+ 				x2:40,
+ 				y2:40,
+ 				borderWidth:1,
+ 			},
+                        //设置图2的提示框
+ 			tooltip : {
+ 				trigger : 'axis',//坐标轴触发 也可以item数据点触发
+ 				formatter: function (params) {//此处为我自定义的显示格式,可以按自己的需求修改
+ 					var res='<div><p>第'+params[0].name+'天：</p></div>'
+ 					for(var i=0;i<params.length;i++){
+ 					    res+='<p>'+params[i].seriesName+':'+params[i].data+'</p>';
+ 					}
+ 					return res;
+ 					},
+ 			},
+           //设置图例,图例的data name 要与series 的data name对应起来,若不同,图例为灰色而不与曲线颜色对应
+     	    legend: {
+     	        data:[
+     	              {name : '群体1',},
+     	              {name : '群体2',},
+     	              {name : '群体3',},
+                      {name : '群体4',},
+                      {name : '群体5',},
+                      {name : '群体6',},
+                      {name : '群体7',},
+                      {name : '群体8',}
+                     ]
+     	    },
+
+     	    calculable : true,//3.0新属性???不大了解,加上去掉没有什么明显效果区别
+            //设置X轴属性
+     	    xAxis : [
+     	        {
+     	            sacle:true,
+     	        	name : "天",
+     	            type : 'category',//坐标轴类型，横轴默认为类型'category'，纵轴默认为数值型'value'
+     	            boundaryGap : false,//类目起始和结束两端空白策略，见下图，默认为true留空，false则顶头
+     	           splitNumber :2,
+     	           axisLabel : {
+						show : true,
+						interval : 4,//X轴数据分段
+						textStyle : {
+							color : '#4169E1',
+						}
+					},
+     	            data : day_array
+     	        }
+     	    ],
+           //设置Y轴属性
+           yAxis : [
+     	        {
+     	        	type : 'value',
+                    min: 'dataMin',
+                    axisLabel : {
+ 						show : true,
+ 						textStyle : {
+ 							color : '#4169E1',
+ 						},
+                        formatter: function (value, index) {
+                    return value.toFixed(2);
+                    }
+ 					},
+                    showMinLabel:true,
+
+     	        }
+     	    ],
+            //要显示出来的折线数据
+           series : [
+     	        {
+     	          name:'群体1',
+     	          type:'line',
+     	          symbol: 'none',//拐点样式,
+     	          itemStyle : {
+                      normal : {
+                          color:'#5470c6',
+                          lineStyle:{
+                              color:'#5470c6'
+                          }
+                      }
+                  },
+     	            data:group0_array
+     	        },
+     	        {
+     	            name:'群体2',
+     	            type:'line',
+     	           symbol: 'none',
+     	          itemStyle : {
+                      normal : {
+                          color:'#91cc75',
+                          lineStyle:{
+                              color:'#91cc75' ,
+                          }
+                      }
+                  },
+     	            data:group1_array
+     	            //data:[20, 60, 80, 100, 82, 80, 94, 100, 92, 80, 84, 86, 102, 96, 84, 79]
+     	        },
+     	        {
+     	            name:'群体3',
+     	            type:'line',
+     	           symbol: 'none',
+     	          itemStyle : {
+                      normal : {
+                          color:'#fac858',
+                          lineStyle:{
+                              color:'#fac858'
+                          }
+                      }
+                  },
+     	            data:group2_array
+     	            //data:[60, 40, 40, 63, 57, 65, 70,74, 80, 77, 69, 73, 76, 80,81, 75]
+     	        },
+     	        {
+     	            name:'群体4',
+     	            type:'line',
+     	           symbol: 'none',
+     	          itemStyle : {
+                      normal : {
+                          color:'#ee6666',
+                          lineStyle:{
+                              color:'#ee6666'
+                          }
+                      }
+                  },
+     	            data:group3_array
+     	            //data:[60, 40, 40, 63, 57, 65, 70,74, 80, 77, 69, 73, 76, 80,81, 75]
+     	        },
+                    	        {
+     	            name:'群体5',
+     	            type:'line',
+     	           symbol: 'none',
+     	          itemStyle : {
+                      normal : {
+                          color:'#73c0de',
+                          lineStyle:{
+                              color:'#73c0de'
+                          }
+                      }
+                  },
+     	            data:group4_array
+     	            //data:[60, 40, 40, 63, 57, 65, 70,74, 80, 77, 69, 73, 76, 80,81, 75]
+     	        },
+                    	        {
+     	            name:'群体6',
+     	            type:'line',
+     	           symbol: 'none',
+     	          itemStyle : {
+                      normal : {
+                          color:'#3ba272',
+                          lineStyle:{
+                              color:'#3ba272'
+                          }
+                      }
+                  },
+     	            data:group5_array
+     	            //data:[60, 40, 40, 63, 57, 65, 70,74, 80, 77, 69, 73, 76, 80,81, 75]
+     	        },
+                    	        {
+     	            name:'群体7',
+     	            type:'line',
+     	           symbol: 'none',
+     	          itemStyle : {
+                      normal : {
+                          color:'#fc8452',
+                          lineStyle:{
+                              color:'#fc8452'
+                          }
+                      }
+                  },
+     	            data:group6_array
+     	            //data:[60, 40, 40, 63, 57, 65, 70,74, 80, 77, 69, 73, 76, 80,81, 75]
+     	        },
+                    	        {
+     	            name:'群体8',
+     	            type:'line',
+     	           symbol: 'none',
+     	          itemStyle : {
+                      normal : {
+                          color:'#9a60b4',
+                          lineStyle:{
+                              color:'#9a60b4'
+                          }
+                      }
+                  },
+     	            data:group7_array
+     	            //data:[60, 40, 40, 63, 57, 65, 70,74, 80, 77, 69, 73, 76, 80,81, 75]
+     	        },
+     	    ]
+     	};
+
+     //ajax异步请求数据
+     $.ajax({
+ 		async : true,
+ 		type: "POST",
+ 		url: "groupemotion",//请求数据的地址
+ 		dataType: "json",        //返回数据形式为json
+ 		success: function (result) {
+ 			console.info(result);
+ 			//请求成功时执行该函数内容，result即为服务器返回的json对象
+ 			$.each(result.data, function (index, item) {//循环取出json中的数据,
+                console.info(result.data);    //index是检索到的json中的对象下标,item为json中的对象
+ 				var day_index = index;
+ 				console.info(day_index,item);
+            	                day_array[0] = "";    //挨个取出类别并填入类别数组
+                                day_array[day_index] = day_index;    //挨个取出类别并填入类别数组
+                                group0_array[day_index] = item.group1;
+                                group1_array[day_index] = item.group2;
+                                group2_array[day_index] = item.group3;
+                                group3_array[day_index] = item.group4;
+                                group4_array[day_index] = item.group5;
+                                group5_array[day_index] = item.group6;
+                                group6_array[day_index] = item.group7;
+                                group7_array[day_index] = item.group8;
+            	                console.info(group1_array[day_index]);
+ 			});
+ 			envirChart.setOption(envirOption);//重新新加载数据
+ 		},
+        error: function () {
+            layer.msg('zhexiantu处理出错！', {icon: 7, time: 2000, shade: [0.6, '#000', true]});
+        }
+ 	});
+});
+</script>
+</body>
+</html>
