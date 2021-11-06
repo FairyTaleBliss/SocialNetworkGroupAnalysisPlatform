@@ -969,7 +969,8 @@ def OverallAnalysisOfWeiboSentiment():
         user_position = json.dumps(user_position)
         user_position_c = json.dumps(user_position_c)
         user_text_count = json.dumps(user_text_count)
-        user_ciyun_path = data_path_cache + '/weibo_ciyun.png'
+        # user_ciyun_path = data_path_cache + '/weibo_ciyun.png'
+        user_ciyun_path = 'static/data/weibo/analysis_cache/weibo_ciyun.png'
         return render_template('OverallAnalysisOfWeiboSentiment.html',user_position_c=user_position_c,
                                user_position=user_position, user_text_count=user_text_count,
                                user_ciyun_path=user_ciyun_path)
@@ -995,8 +996,10 @@ def DetailedAnalysisOfWeiboSentiment():
                                 ['其他', 8699, 966, 6681], ['青海', 637, 57, 476], ['宁夏', 397, 24, 275]]
     user_position_senticount = json.dumps(user_position_senticount)
     user_time_senticount = json.dumps(user_time_senticount)
-    user_timeciyun_path = data_path_cache + '/result/time_wc_chuo'  # 时间词云文件夹路径
-    user_positionciyun_path = data_path_cache + '/result/position_wc_chuo'  # 省份词云文件夹路径
+    # user_timeciyun_path = data_path_cache + '/result/time_wc_chuo'  # 时间词云文件夹路径
+    # user_positionciyun_path = data_path_cache + '/result/position_wc_chuo'  # 省份词云文件夹路径
+    user_timeciyun_path = 'static/data/weibo/analysis_cache/result/time_wc_chuo'  # 时间词云文件夹路径
+    user_positionciyun_path = 'static/data/weibo/analysis_cache/result/position_wc_chuo'  # 省份词云文件夹路径
     user_timeciyun_path = json.dumps(user_timeciyun_path)
     user_positionciyun_path = json.dumps(user_positionciyun_path)
     if request.method == 'GET':
