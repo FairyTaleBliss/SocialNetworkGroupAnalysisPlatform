@@ -1,3 +1,6 @@
+from algorithm.group_huefen import *
+from algorithm.group_0 import *
+
 from flask import Flask, render_template, request
 import json
 import os
@@ -1665,6 +1668,406 @@ def DemonstrationOfGroupSentimentAnalysisModel():
     :return:
     '''
     return render_template('DemonstrationOfGroupSentimentAnalysisModel.html')
+
+# 群体划分展示，后端服务
+@app.route('/DemonstrationOfGroupStructure')
+def DemonstrationOfGroupStructure():
+    '''
+    TODO
+    :return:
+    '''
+    return render_template('DemonstrationOfGroupStructure.html')
+
+#群体划分数据传到前端
+@app.route('/groupdivide', methods=["POST"])
+def groupdivide():
+    step = request.form.get('step')
+    sample_graph = generate_graph()
+    # print(sample_graph.nodes,sample_graph.edges)  #图的边和节点
+    louvain = Louvain()
+    partition = louvain.getBestPartition(sample_graph)
+    # print(partition)
+    p = defaultdict(list)
+    for node, com_id in partition.items():
+        p[com_id].append(node)
+    links = []
+    for source, target in sample_graph.edges:
+        # links.append({})
+        # links[len(links) - 1]['source'] = str(source)
+        # links[len(links) - 1]['target'] = str(target)
+
+        tempLink = {}
+        tempLink['source'] = str(source)
+        tempLink['target'] = str(target)
+        links.append(tempLink)
+
+    labels = []
+    for com, nodes in p.items():
+        labels.append(com)
+
+    categories = []
+    for name in labels:
+        # categories.append({})
+        # categories[len(categories) - 1]['name'] = str(name)
+        tempCate = {}
+        tempCate['name'] = str(labels.index(name))
+        categories.append(tempCate)
+
+    nodes_data_json = []
+    for node, com_id in partition.items():
+        if labels.index(com_id) == 0:
+            x = random.randint(-1500, -500)
+            y = random.randint(-500, 500)
+        elif labels.index(com_id) == 1:
+            x = random.randint(-1500, -500)
+            y = random.randint(500, 1500)
+        elif labels.index(com_id) == 2:
+            x = random.randint(-500, 500)
+            y = random.randint(500, 1500)
+        elif labels.index(com_id) == 3:
+            x = random.randint(500, 1500)
+            y = random.randint(500, 1500)
+        elif labels.index(com_id) == 4:
+            x = random.randint(500, 1500)
+            y = random.randint(-500, 500)
+        elif labels.index(com_id) == 5:
+            x = random.randint(500, 1500)
+            y = random.randint(-1500, -500)
+        elif labels.index(com_id) == 6:
+            x = random.randint(-500, 500)
+            y = random.randint(-1500, -500)
+        elif labels.index(com_id) == 7:
+            x = random.randint(-1500, -500)
+            y = random.randint(-1500, -500)
+        tempNode = {}
+        tempNode['id'] = str(node)
+        tempNode['name'] = str(node)
+        tempNode['symbolSize'] = 8
+        tempNode['x'] = x
+        tempNode['y'] = y
+        tempNode['value'] = 0
+        tempNode['category'] = labels.index(com_id)
+        nodes_data_json.append(tempNode)
+
+    formData = {}
+    formData['nodes'] = nodes_data_json
+    formData['links'] = links
+    formData['categories'] = categories
+    newData = json.dumps(formData)
+
+    return newData
+
+# 群体情感计算，后端服务
+# @app.route('/GroupEmotionCalculate')
+# def GroupEmotionCalculate():
+#     '''
+#     TODO
+#     :return:
+#     '''
+#     return render_template('GroupEmotionCalculate.html')
+
+#群体情感值查询(表格形式)
+@app.route('/groupemotion', methods=["GET","POST"])
+def groupemotion():
+    import os
+    workpath = os.path.dirname(__file__)
+    groupnum = 8
+    group = []
+    for n in range(0, groupnum):
+        group.append([])
+        f1 = open(workpath + '/static/data/medium_result/group' + str(n) + '_groupvaluerank.txt', mode='r')
+        for line in f1.readlines():
+            period_cv = (workpath + line).split(' ')
+            group[n].append(float(period_cv[1].strip('\n')))
+    day_data = []
+    for i in range(len(group[0])):
+        day = {}
+        day['group1'] = group[0][i]
+        day['group2'] = group[1][i]
+        day['group3'] = group[2][i]
+        day['group4'] = group[3][i]
+        day['group5'] = group[4][i]
+        day['group6'] = group[5][i]
+        day['group7'] = group[6][i]
+        day['group8'] = group[7][i]
+        day_data.append(day)
+    day_data.pop(0)
+    # zhexian_data = []
+    # for j in range(len(group[0])):
+    #     zhexian = {}
+    #     zhexian[j] = day_data[j]
+    #     zhexian_data.append(zhexian)
+
+    formData = {}
+    formData['data'] = day_data
+    newData = json.dumps(formData)
+    return newData
+
+#群体情感展示页面后端
+@app.route('/GroupEmotionAll')
+def GroupEmotionAll():
+    '''
+    TODO
+    :return:
+    '''
+    return render_template('GroupEmotionAll.html')
+
+#群体初始情感分布
+@app.route('/grouporiginal', methods=["GET","POST"])
+def grouporiginal():
+    groupNumber = request.get_data()
+    groupNumber = json.loads(groupNumber.decode())
+    groupNumber = int(groupNumber["groupnum"])
+    import os
+    import numpy as np
+    import pandas as pd
+    workpath = os.path.dirname(__file__)
+
+    group_0day_value = []
+    for n in range(0, 7):
+        group_value = []
+        txtpath = workpath + '/static/data/dblp_weizao/group' + str(n) + '/0_day.csv'
+
+        txt = pd.read_csv(txtpath)
+        value_pos = 0  # 个人情感值
+        value_neg = 0  # 个人情感值
+        for i in range(len(txt)):
+            if (txt['senti_value'][i] > 0):
+                value_pos = value_pos + 1
+            else:
+                value_neg = value_neg + 1
+        group_value = [value_pos, value_neg]
+        group_0day_value.append(group_value)
+    a = np.array(group_0day_value)
+    groupall_0day_value = a.sum(axis=0)
+    groupall_0day_value = [groupall_0day_value.tolist()]
+    groupall_0day_value.extend(group_0day_value)  # 总的+各各群体的列表
+
+    formData = {}
+    formData['positive_number'] = groupall_0day_value[groupNumber][0]
+    formData['negative_number'] = groupall_0day_value[groupNumber][1]
+    newData = json.dumps(formData)
+    return newData
+
+# 群体情感，种子节点选取，后端页面跳转服务
+@app.route('/GroupEmotionCalculate')
+def GroupEmotionCalculate():
+    '''
+    TODO
+    :return:
+    '''
+    return render_template('GroupEmotionCalculate.html')
+
+# 群体情感，种子节点选取，异步数据获取后端服务
+@app.route('/GroupEmotionCalculatePostData',methods=["GET", "POST"])
+def GroupEmotionCalculatePostData():
+    sample_graph = generate_graph()
+    louvain = Louvain()
+    partition = louvain.getBestPartition(sample_graph)
+    p = defaultdict(list)
+    for node, com_id in partition.items():
+        p[com_id].append(node)
+    links = []
+    for source, target in sample_graph.edges:
+        tempLink = {}
+        tempLink['id'] = len(links)
+        tempLink['lineStyle'] = {'opacity': 0.6}
+        tempLink['name'] = 'null'
+        tempLink['source'] = str(source)
+        tempLink['target'] = str(target)
+        links.append(tempLink)
+
+    labels = []
+    for com, nodes in p.items():
+        labels.append(com)
+
+    pos = nx.drawing.spring_layout(sample_graph, iterations=100, k=0.5)
+
+    nodes_data_json = []
+    for node, com_id in partition.items():
+        tempNode = {}
+        tempNode['attributes'] = {'modularity_class': 0}
+        tempNode['id'] = str(node)
+        tempNode['category'] = 0
+        tempNode['itemStyle'] = {'opacity': 0.8}
+        tempNode['label'] = {'normal': {'show': 'false'}}
+        tempNode['name'] = str(node)
+        tempNode['symbolSize'] = 8
+        tempNode['value'] = 111
+        tempNode['x'] = pos[int(node)][0]
+        tempNode['y'] = pos[int(node)][1]
+        nodes_data_json.append(tempNode)
+
+    formData = {}
+    formData['nodes'] = nodes_data_json
+    formData['links'] = links
+    newData = json.dumps(formData)
+
+
+    workpath = os.path.dirname(__file__)
+    G, user_in = generate_graph2()
+    itnum = 20  # 迭代次数
+    groupnum = 8
+    infuser_end = {}
+    for n in range(0, groupnum):
+        group = {}
+        period_user_rank = {}
+        # 读取阶段的群体情感值txt到group中
+        f1 = open(workpath + '/static/data/medium_result/group' + str(n) + '_groupvaluerank.txt', mode='r')
+        for line in f1.readlines():
+            period_cv = (workpath + line).split(' ')
+            group[period_cv[0]] = float(period_cv[1].strip('\n'))
+
+        ##读取阶段的用户情感值排名txt到period_user_rank中
+        f2 = open(workpath + '/static/data/medium_result/group' + str(n) + '_perioduserrank.txt', mode='r')
+        for line in f2.readlines():
+            perioduserrank = line.split('.csv ')
+            perioduserrank[0] += '.csv'
+            perioduserrank[0] = workpath + perioduserrank[0]
+            period_user_rank[perioduserrank[0]] = eval(perioduserrank[1])
+        senti_diff = []  # 阶段间的群体情感变化
+        grouprank = list(group.items())
+        groupdegree = {}  # 每个阶段所有用户的出度
+        for i in range(len(grouprank)):
+            periodtxt = pd.read_csv(grouprank[i][0])
+            perioduser = set(periodtxt['user_id'])
+            groupdegree[grouprank[i][0]] = 0
+            ne = []
+            for j in perioduser:
+                if j in G.nodes():
+                    ne = set(ne).union(set(G[j]))
+            groupdegree[grouprank[i][0]] = len(ne)
+        for i in range(1, len(grouprank) - 1):
+            senti_diff.append([grouprank[i][0], abs(grouprank[i][1] - grouprank[i + 1][1])])
+        import operator
+        senti_diff.sort(key=operator.itemgetter(1), reverse=True)
+        sentithre = 0
+        sentitharr = []
+        infperiod = []  # 保存影响力较大的阶段，若群体情感在相邻的两阶段内差值较大，则认为该阶段内存在影响力较大的用户
+        for i in range(len(senti_diff)):
+            sentithre += senti_diff[i][1]
+        sentithre = sentithre / len(senti_diff)  # 群体情感变化阈值
+        for i in senti_diff:
+            if i[1] > sentithre:
+                infperiod.append(i[0])
+        userperiodrank = []
+        houxuaninfuser_num = 3  # 默认候选影响力用户参数,即候选种子集合数量
+        infuser_num = 50  # 默认影响力用户参数,即种子集合数量
+        houxuanseed = []
+        for i in infperiod:
+            user = (pd.read_csv(i))['user_id']
+            houxuanseed = set(houxuanseed).union(set(user))
+        for i in infperiod:
+            if i != workpath + '/static/data/dblp_weizao/group/' + str(n) + '0_day.csv':
+                temp = sorted(list(period_user_rank[i].items()), key=lambda x: x[1], reverse=True)
+                # print(temp)
+                for j in range(houxuaninfuser_num):
+                    userperiodrank.append(temp[j])
+        userperiodrank.sort(key=operator.itemgetter(1), reverse=True)
+        userperiodranknew = {}
+        for i in range(len(userperiodrank)):
+            if userperiodrank[i][0] not in userperiodranknew.keys():
+                userperiodranknew[userperiodrank[i][0]] = userperiodrank[i][1]
+            else:
+                userperiodranknew[userperiodrank[i][0]] = max(userperiodrank[i][1],
+                                                              userperiodranknew[userperiodrank[i][0]])
+        userperiodranknew = list(userperiodranknew.items())
+        userperiodranknew.sort(key=operator.itemgetter(1), reverse=True)
+        # 候选种子集
+        infuser = []
+        for i in range(len(userperiodranknew)):
+            infuser.append(userperiodranknew[i][0])
+        infuser_end[n] = infuser
+    group = [
+        [1, 26, 30, 60, 100, 159, 214, 315, 357, 437, 532, 618, 651, 803, 873, 920, 940, 425, 426, 529, 644, 718, 876,
+         372, 460, 575, 782, 884, 501, 550, 684, 55, 485, 864, 12, 61, 92, 171, 174, 248, 273, 307, 420, 685, 806, 949,
+         243, 946, 14, 32, 36, 98, 292, 299, 316, 352, 415, 443, 552, 576, 635, 649, 737, 819, 773, 848, 855, 811, 929,
+         282, 512, 577, 398, 414, 667, 699, 813, 886, 781, 824, 579, 522, 549, 57, 491, 535, 944, 609, 712, 934, 689,
+         939, 812, 935, 569, 348, 389, 106, 185, 758, 484, 116, 648, 669, 892, 353, 617, 275, 122, 210, 124, 483, 801,
+         130, 207, 265, 906, 406, 377, 700, 143, 192, 261, 561, 150, 229, 590, 872, 263, 164, 528, 753, 919, 442, 633,
+         638, 202, 950, 914, 177, 882, 182, 438, 493, 728, 899, 215, 371, 455, 334, 213, 382, 422, 253, 823, 835, 625,
+         256, 435, 226, 227, 329, 771, 861, 910, 870, 538, 643, 502, 417, 423, 807, 258, 272, 306, 825, 277, 932, 740,
+         467, 775, 709, 881, 430, 358, 374, 489, 440, 878, 394, 402, 403, 432, 726, 596, 606, 447, 462, 614, 615, 693,
+         585, 778, 729, 632, 815, 827, 923, 764, 953],
+        [2, 13, 23, 35, 127, 242, 278, 298, 300, 499, 681, 743, 72, 341, 560, 900, 62, 74, 81, 477, 479, 525, 536, 558,
+         570, 626, 6, 9, 51, 58, 59, 787, 795, 828, 833, 853, 86, 622, 845, 8, 88, 854, 18, 39, 63, 70, 87, 268, 290,
+         356, 480, 692, 865, 894, 11, 16, 27, 31, 45, 111, 125, 186, 236, 269, 338, 370, 424, 581, 599, 663, 713, 754,
+         798, 449, 21, 149, 225, 276, 399, 497, 755, 472, 230, 244, 271, 293, 303, 588, 652, 749, 912, 931, 951, 17,
+         197, 218, 238, 267, 354, 368, 401, 445, 686, 857, 20, 67, 194, 221, 262, 264, 331, 418, 796, 434, 325, 463,
+         586, 335, 384, 829, 852, 898, 392, 503, 71, 677, 37, 302, 419, 29, 308, 941, 627, 769, 683, 376, 526, 887, 794,
+         47, 727, 746, 734, 770, 640, 735, 785, 660, 851, 108, 711, 410, 436, 110, 138, 212, 296, 114, 176, 397, 208,
+         115, 255, 119, 247, 612, 199, 123, 147, 168, 546, 745, 129, 137, 170, 285, 131, 216, 136, 656, 203, 217, 380,
+         452, 519, 140, 173, 482, 786, 332, 324, 287, 323, 160, 317, 189, 205, 510, 645, 637, 708, 862, 938, 390, 907,
+         849, 867, 936, 597, 888, 378, 748, 409, 446, 673, 671, 234, 646, 524, 521, 509, 473, 904, 834, 661, 94, 916,
+         739, 481, 703, 725, 642, 591, 715, 841, 868, 954],
+        [3, 40, 239, 364, 301, 309, 707, 5, 565, 741, 836, 580, 701, 783, 810, 832, 93, 760, 797, 814, 96, 190, 917,
+         312, 926, 66, 698, 846, 250, 779, 105, 280, 544, 571, 288, 842, 145, 146, 340, 154, 513, 736, 188, 305, 930,
+         511, 877, 553, 478, 621, 311, 905, 471, 347, 395, 400, 768, 492, 582, 505, 554, 584, 688, 690, 875, 695, 922,
+         776, 631, 839, 942, 822, 808, 945],
+        [15, 34, 103, 198, 252, 624, 821, 915, 730, 594, 77, 568, 523, 112, 162, 169, 336, 181, 874, 672, 542, 628, 76,
+         297, 320, 404, 68, 566, 860, 893, 600, 765, 79, 385, 717, 756, 83, 901, 924, 91, 933, 351, 518, 441, 187, 321,
+         113, 121, 716, 156, 567, 128, 412, 132, 655, 723, 747, 134, 151, 155, 211, 232, 240, 705, 486, 496, 326, 270,
+         601, 284, 589, 722, 697, 219, 235, 289, 545, 800, 405, 333, 344, 408, 820, 847, 659],
+        [25, 50, 172, 237, 367, 634, 767, 233, 587, 897, 346, 759, 710, 799, 562, 184, 19, 687, 24, 530, 304, 369, 383,
+         465, 516, 540, 682, 879, 918, 328, 65, 613, 520, 53, 80, 947, 97, 322, 702, 583, 630, 107, 163, 241, 133, 366,
+         458, 572, 605, 141, 653, 676, 937, 142, 148, 393, 514, 883, 195, 201, 593, 850, 662, 310, 817, 895, 602, 339,
+         921, 559, 752, 802, 439, 506, 507, 784, 816, 826, 680, 952],
+        [42, 46, 427, 733, 89, 379, 428, 592, 7, 780, 792, 840, 22, 224, 294, 650, 38, 391, 647, 666, 742, 791, 927,
+         101, 196, 448, 856, 349, 350, 790, 204, 260, 488, 139, 179, 161, 555, 342, 804, 254, 200, 619, 487, 246, 375,
+         466, 490, 291, 534, 279, 763, 547, 451, 706, 913, 611, 444, 757, 470, 603, 608, 724, 616, 891, 704, 714, 902,
+         777, 911, 948],
+        [453, 604, 623, 222, 866, 249, 494, 504, 751, 744, 416, 533, 885, 654, 64, 774, 102, 69, 231, 104, 193, 548,
+         598, 450, 283, 869, 95, 126, 175, 388, 135, 541, 858, 539, 319, 281, 578, 153, 595, 259, 157, 386, 889, 158,
+         345, 456, 457, 228, 658, 871, 183, 314, 732, 890, 206, 363, 694, 421, 844, 361, 433, 476, 373, 675, 251, 407,
+         766, 908, 515, 500, 657, 720, 909, 355, 365, 381, 468, 387, 762, 838, 610, 411, 454, 461, 750, 837, 474, 738,
+         943, 469, 903, 761],
+        [43, 44, 48, 78, 4, 33, 41, 313, 620, 75, 82, 84, 90, 563, 636, 665, 670, 731, 607, 679, 10, 49, 52, 54, 120,
+         191, 220, 223, 337, 362, 495, 527, 28, 257, 475, 85, 144, 343, 330, 928, 73, 327, 396, 99, 286, 431, 464, 678,
+         772, 880, 429, 629, 641, 719, 574, 573, 668, 498, 674, 531, 56, 557, 721, 863, 793, 843, 925, 831, 109, 517,
+         117, 209, 318, 274, 818, 118, 413, 180, 152, 537, 551, 165, 166, 178, 167, 508, 459, 543, 359, 788, 896, 556,
+         809, 859, 360, 691, 805, 789, 245, 266, 295, 639, 696, 564, 664, 830]]
+
+    ratio = {}
+    for n in range(0, groupnum):
+        ratio[n] = len(group[n]) / 954
+    import copy
+    seednum = 5
+    S = []  # 备选种子
+    for n in range(0, groupnum):
+        S += infuser_end[n][0:int(seednum * (1 + ratio[n]))]
+    infuser_houxuan = S
+    import time
+    S, spreadsetnum, timecost, starttime = [], [], [], time.time()
+    infuser_bak = infuser_houxuan
+    # print(len(G.nodes))
+    current_collection = []
+    current_influence = []
+    for i in range(seednum):
+        infuser_houxuan = infuser_bak
+        spreadmem, nodemen = 0, 0
+        for j in set(infuser_houxuan) - set(S):
+            current_collection.append(copy.deepcopy(S + [j]))
+            s = icmodel(G, S + [j], itnum)
+            current_influence.append(copy.deepcopy(s))
+            if s > spreadmem:
+                spreadmem = s  # 本轮被激活的节点数量
+                nodemen = j
+        S.append(nodemen)
+        spreadsetnum.append(spreadmem)
+    seedset_end = S
+
+    jsonData = {}
+    jsonData['graph_data'] = newData
+    jsonData['seednum'] = seednum
+    jsonData['current_collection'] = current_collection
+    jsonData['current_influence'] = current_influence
+    jsonData['seedset_end'] = seedset_end
+    return jsonData
+    # return render_template('GroupEmotionCalculate.html', graph_data=newData, seednum = seednum,current_collection=current_collection,
+    #                        current_influence=current_influence,seedset_end=seedset_end)
+    # return render_template('GroupEmotionCalculate.html', graph_data=G, influences=iter_influences,
+    #                        max_influence=max_influence, max_inf_node=max_inf_node)
+
 
 if __name__ == '__main__':
     # 群体预测模块，模型加载

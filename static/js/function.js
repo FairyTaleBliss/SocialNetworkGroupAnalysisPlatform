@@ -3,8 +3,7 @@ init_graph = function(graph, flag=true){
 
     //给节点的属性进行操作
     graph.nodes.forEach(function (node) {
-        node.itemStyle = null;
-        node.symbolSize = 15;
+        node.symbolSize = 8;
         // node.value = node.symbolSize;
         if(flag == true)
             node.category = node.attributes.modularity_class;
@@ -15,18 +14,18 @@ init_graph = function(graph, flag=true){
 
 init_option = function(graph){
     var option;
-    var categories = [];
+    var categories = [];//设置节点属性
     categories[0] = {
             name: '未激活节点',
             itemStyle: {
-                color: '#2f4554',
-                opacity: 0.9, //不透明度
+                color: '#426ab3',
+                opacity: 0.3, //不透明度
             }
         }
         categories[1] = {
             name: '激活节点',
             itemStyle: {
-                color: '#009688',
+                color: '#ef4136',
                 opacity: 1, //不透明度
             },
             label: {
@@ -71,12 +70,12 @@ init_option = function(graph){
                         shadowColor: 'rgba(0, 0, 0, 0.3)'
                     }
                 },
-                label: {
+                label: {//设置节点标签
                     position: 'right',
                     formatter: '{b}'
                 },
-                lineStyle: {
-                    color: 'rgba(0, 0, 0, 0.7)',
+                lineStyle: {//边的种类
+                    color: '#9b95c9',
                     curveness: 0.3
                 },
                 emphasis: {
@@ -91,4 +90,27 @@ init_option = function(graph){
         ]
     };
     return option;
+}
+function getUrlParam(name) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
+            var r = window.location.search.substr(1).match(reg);  //匹配目标参数
+            if (r != null) return unescape(r[2]);
+            return null; //返回参数值
+        }
+redirection = function()  {
+    let userName = getUrlParam("userName");
+    $.ajax({
+        type: "POST",
+        url: "/fun",
+        data: {
+            "userName": userName
+        },
+        success: function(data) {
+            if(data.userInfo == 1)
+                $(window).attr('location','/login');
+        },
+        error: function() {
+            console.log('error');
+        }
+    })
 }
