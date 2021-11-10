@@ -2,6 +2,14 @@
 <html lang="en">
 <!DOCTYPE html>
 <html style="height: 100%; initial-scale: 0.1">
+<script src="../static/js/jquery.js"></script>
+<script src="../static/js/jquery.cookie.js"></script>
+    <script type="text/javascript">
+        (()=>{
+            if($.cookie('user') == undefined)
+                $(window).attr('location','/login');
+        })()
+    </script>
 <head>
     <meta charset="UTF-8">
     <title>关于我们</title>

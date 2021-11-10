@@ -24,7 +24,13 @@
 <script type="text/javascript" src="/static/js/echarts.js"></script>
 <script type="text/javascript" src="/static/js/function.js"></script>
 <script type="text/javascript" src="/static/js/echarts.min.js"></script>
+<script src="../static/js/jquery.js"></script>
+<script src="../static/js/jquery.cookie.js"></script>
 <script type="text/javascript">
+    (()=>{
+        if($.cookie('user') == undefined)
+            $(window).attr('location','/login');
+    })()
     var myChart1=echarts.init(document.getElementById('chart1'));//加入内容的容器
     var myChart2 = echarts.init(document.getElementById('chart2'));
     var user_time_senticount=JSON.parse({{user_time_senticount|tojson}});//用户微博情感极性
@@ -116,8 +122,14 @@
 });
 </script>
 <script type="text/javascript" src="/static/js/china.js"></script>
+<script src="../static/js/jquery.js"></script>
+<script src="../static/js/jquery.cookie.js"></script>
 
 <script type="text/javascript">
+    (()=>{
+        if($.cookie('user') == undefined)
+            $(window).attr('location','/login');
+    })()
        var myChart = echarts.init(document.getElementById('provincemap'));
        var myChart3 = echarts.init(document.getElementById('chart3'));
        var user_position_senticount=JSON.parse({{user_position_senticount|tojson}});//用户微博情感极性

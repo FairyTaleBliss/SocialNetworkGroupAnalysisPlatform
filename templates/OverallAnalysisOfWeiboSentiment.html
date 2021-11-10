@@ -50,7 +50,13 @@
 <script src="../static/layui/layui.js"></script>
 <script type="text/javascript" src="/static/js/echarts.js"></script>
 <script type="text/javascript" src="/static/js/function.js"></script>
+<script src="../static/js/jquery.js"></script>
+<script src="../static/js/jquery.cookie.js"></script>
 <script type="text/javascript">
+    (()=>{
+        if($.cookie('user') == undefined)
+            $(window).attr('location','/login');
+    })()
 
    var myChart0=echarts.init(document.getElementById('chart0'));//加入内容的容器
    var user_text_count=JSON.parse({{user_text_count|tojson}});//用户微博情感极性

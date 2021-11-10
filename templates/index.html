@@ -91,12 +91,12 @@
                 <dd><a onclick="skipto('introduceSIModel')" style="cursor:pointer; font-size: 12px">模型介绍</a></dd>
                 <dd><a onclick="skipto('DemonstrationOfSIModel')" style="cursor:pointer; font-size: 12px">模型展示</a></dd>
               </dl>
+            </dl>
+            <dl class="layui-nav-child">
+              <a href="javascript:;" style="font-size: 14px;">SIR传播模型</a>
               <dl class="layui-nav-child">
-                <a href="javascript:;" style="font-size: 12px;">SIR传播模型</a>
-                <dl class="layui-nav-child">
-                    <dd><a onclick="skipto('introduceSIRModel')" style="cursor:pointer; font-size: 10px">模型介绍</a></dd>
-                    <dd><a onclick="skipto('DemonstrationOfSIRModel')" style="cursor:pointer; font-size: 10px">模型展示</a></dd>
-                </dl>
+                  <dd><a onclick="skipto('introduceSIRModel')" style="cursor:pointer; font-size: 12px">模型介绍</a></dd>
+                  <dd><a onclick="skipto('DemonstrationOfSIRModel')" style="cursor:pointer; font-size: 12px">模型展示</a></dd>
               </dl>
             </dl>
           </dl>
@@ -119,9 +119,9 @@
             <dl class="layui-nav-child">
               <dd><a onclick="skipto('DemonstrationOfGroupBehaviorPredictionModel')" style="cursor:pointer; font-size: 14px">模型展示</a></dd>
             </dl>
-            <dl class="layui-nav-child">
+<!--             <dl class="layui-nav-child">
               <dd><a href="javascript:;">子模块视需要添加</a></dd>
-            </dl>
+            </dl> -->
           </dl>
           <dl class="layui-nav-child">
             <a class="" href="javascript:;" style="font-size: 16px;">群体行为传播</a>
@@ -131,9 +131,9 @@
             <dl class="layui-nav-child">
               <dd><a onclick="skipto('DemonstrationOfGroupBehaviorCommunicationModel')" style="cursor:pointer; font-size: 14px">模型展示</a></dd>
             </dl>
-            <dl class="layui-nav-child">
+<!--             <dl class="layui-nav-child">
               <dd><a href="javascript:;">子模块视需要添加</a></dd>
-            </dl>
+            </dl> -->
           </dl>
           <dl class="layui-nav-child">
             <a class="" href="javascript:;" style="font-size: 16px;">群体情感分析</a>
@@ -174,7 +174,32 @@
 <script src="../static/js/jquery.cookie.js"></script>
 {#自己撰写的本页面的js代码#}
 <script>
-
+// 登录验证by cookie
+(()=>{
+      if($.cookie('user') == undefined)
+        $(window).attr('location','/login');
+      else {
+        let user = $.cookie('user');
+        // $.ajax({
+        //   type: "POST",
+        //   url: "/fun",
+        //   data: {
+        //     "user": user
+        //   },
+        //   success: function(data) {
+        //     console.log('666');
+        //     let $data = $('<dd><a style="cursor: pointer">用户名：'+data.user[0]+'</a></dd>'
+        //           + '<dd><a style="cursor: pointer">单位：'+ data.user[4] + '</a></dd>'
+        //           + '<dd><a style="cursor: pointer">邮箱：'+ data.user[3] + '</a></dd>' 
+        //           + '<dd><a style="cursor: pointer">联系电话：'+ data.user[2] + '</a></dd>')
+        //     $('#userdata').prepend($data);
+        //   },
+        //   error: function() {
+        //     console.log('error');
+        //   }
+        // })
+      }
+    })()
 //JS
 layui.use(['element', 'layer', 'util'], function(){
   var element = layui.element
@@ -199,11 +224,24 @@ layui.use(['element', 'layer', 'util'], function(){
       });
     }
   });
+
+function delAllCookie(){    
+          var myDate=new Date();    
+          myDate.setTime(-1000);//设置时间    
+          var data=document.cookie;    
+          var dataArray=data.split("; ");    
+          for(var i=0;i<dataArray.length;i++){    
+               var varName=dataArray[i].split("=");    
+               document.cookie=varName[0]+"=''; expires="+myDate.toGMTString();    
+          }    
+                        
+    }  
   //退出登录js
   $('#quit').on('click', function () {
       var r = confirm("你确定要退出吗？");
       if (r === true) {
           $(window).attr('location', '/login');
+          delAllCookie();
       }
   });
   //ajax动态更新用户信息展示
@@ -212,22 +250,30 @@ layui.use(['element', 'layer', 'util'], function(){
       $('#show').on('mouseover', function () {
           var userInfo = "";
           $("#userInfo").html("");
-          $.ajax({
-              url: "/getUserInfo",
-              type: "POST",
-              dataType: "json",
-              processData: false,
-              contentType: false,
-              success: function (data) {
-                  if (data.isSuccess === 1) {
-                      userInfo = '<dd><a href="javascript:return false;">账号：' + data.user.toString() + '</a></dd>' +
-                          '<dd><a href="javascript:return false;">手机号：' + data.phoneNumber + '</a></dd>' +
-                          '<dd><a href="javascript:return false;">邮箱：' + data.mail + '</a></dd>' +
-                          '<dd><a href="javascript:return false;">单位：' + data.unit + '</a></dd>';
+          (()=>{
+            if($.cookie('user') == undefined)
+              $(window).attr('location','/login');
+            else {
+              let user = $.cookie('user');
+              $.ajax({
+                  url: "/getUserInfo",
+                  type: "POST",
+                  dataType: "json",
+                  data: {"user": user},
+                  // processData: false,
+                  // contentType: false,
+                  success: function (data) {
+                      if (data.isSuccess === 1) {
+                          userInfo = '<dd><a href="javascript:return false;">账号：' + data.user.toString() + '</a></dd>' +
+                              '<dd><a href="javascript:return false;">手机号：' + data.phoneNumber + '</a></dd>' +
+                              '<dd><a href="javascript:return false;">邮箱：' + data.mail + '</a></dd>' +
+                              '<dd><a href="javascript:return false;">单位：' + data.unit + '</a></dd>';
+                      }
+                      $("#userInfo").append(userInfo)
                   }
-                  $("#userInfo").append(userInfo)
-              }
-          });
+              });
+            }
+          })()
           count++;
       });
   }

@@ -38,6 +38,24 @@
         </div>
     </div>
 </div>
+
+<script src="../static/js/jquery.js"></script>
+<script src="../static/js/jquery.cookie.js"></script>
+<script>
+layui.use(['form', 'element', 'layer', 'util', 'table'], function(){
+  var element = layui.element
+    ,form = layui.form
+    ,layer = layui.layer
+    ,util = layui.util
+    ,table = layui.table
+    ,$ = layui.$;
+    (()=>{
+        if($.cookie('user') == undefined)
+        $(window).attr('location','/login');
+    })()
+});
+</script>
+
 <script src="/static/layui/layui.js"></script>
 <script>
 layui.use('carousel', function(){
@@ -58,6 +76,16 @@ layui.use('element', function(){
   var element = layui.element;
 });
 </script>
+
+<script src="../static/js/jquery.cookie.js"></script>
+    <script type="text/javascript">
+        (()=>{
+            if($.cookie('user') == undefined)
+                $(window).attr('location','/login');
+        })()
+    </script>
+
+
 
 </body>
 </html>

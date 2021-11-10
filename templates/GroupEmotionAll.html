@@ -74,8 +74,14 @@
 <script src="../static/js/jquery.js"></script>
 <script type="text/javascript" src="../../static/js/echarts.js"></script>
 <script type="text/javascript" src="../../static/js/echarts.js/echarts.min.js"></script>
+<script src="../static/js/jquery.cookie.js"></script>
 <script type="text/javascript">
-layui.use(['layer', 'jquery', 'form','table'], function () {
+    (()=>{
+        if($.cookie('user') == undefined)
+            $(window).attr('location','/login');
+    })()
+
+    layui.use(['layer', 'jquery', 'form','table'], function () {
     var layer = layui.layer,
         $ = layui.jquery,
         form = layui.form,

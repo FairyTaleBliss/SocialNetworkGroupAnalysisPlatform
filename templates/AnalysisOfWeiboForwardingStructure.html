@@ -37,8 +37,14 @@
         </div>
         <script type="text/javascript" src="/static/js/echarts.js"></script>
         <script type="text/javascript" src="/static/js/china.js"></script>
+        <script src="../static/js/jquery.js"></script>
+        <script src="../static/js/jquery.cookie.js"></script>
         <script type="text/javascript">
-
+            (()=>{
+            if($.cookie('user') == undefined)
+                $(window).attr('location','/login');
+            })()
+            
             var data = {{ data_json | tojson}};   //接收来自后端的数据
             data = JSON.parse(data);              //将数据解析为json格式
             var time = data.time;                 //转发量-时间
