@@ -170,9 +170,14 @@
 <script src="../static/layui/layui.js"></script>
 <script src="../static/js/jquery.js"></script>
 <script type="text/javascript" src="../static/js/echarts.js"></script>
+<script src="../static/js/jquery.cookie.js"></script>
 <script type="text/javascript" src="../static/js/echarts.min.js"></script>
 {#自己撰写的本页面的js代码#}
 <script type="text/javascript">
+(()=>{
+    if($.cookie('user') == undefined)
+        $(window).attr('location','/login');
+})()
 layui.use(['form', 'element', 'layer', 'util', 'table'], function(){
   var element = layui.element
     ,form = layui.form

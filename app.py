@@ -3,7 +3,6 @@ from algorithm.group_0 import *
 
 from flask import Flask, render_template, request
 import json
-import os
 import sys
 import datetime
 import torch
@@ -13,7 +12,6 @@ from algorithm.groupBehaviorPrediction.DataLoader import Dataloader
 from algorithm.groupBehaviorPrediction.LSTMGCNPMAgbp import LSTMGCNPMAGbp
 import sqlite3
 from gevent import pywsgi
-import os
 import os
 
 # 微博可视化部分添加的库
@@ -633,7 +631,7 @@ thread = None
 app = Flask(__name__)
 app.secret_key = 'lisenzzz'
 socketio = SocketIO(app, async_mode=async_mode)
-connection = sqlite3.connect("logindata.db")
+connection = sqlite3.connect("logindata.db", check_same_thread=False)
 cur = connection.cursor()
 # cur.execute("delete from udata where user = 'Jagger'")
 
@@ -929,24 +927,43 @@ def AnalysisOfWeiboForwardingStructure():
     data_json = json.dumps(data)
     return render_template('AnalysisOfWeiboForwardingStructure.html', data_json=data_json)
 
-# 单条微博情感分析，后端服务
-@app.route('/EmotionalAnalysisOfSingleWeibo', methods=['GET', 'POST'])
+# 单条微博情感分析，后端跳转服务
+@app.route('/EmotionalAnalysisOfSingleWeibo')
 def EmotionalAnalysisOfSingleWeibo():
+    return render_template('EmotionalAnalysisOfSingleWeibo.html')
+
+# 单条微博情感分析，后端数据请求服务
+@app.route('/EmotionalAnalysisOfSingleWeiboPostData', methods=['POST'])
+def EmotionalAnalysisOfSingleWeiboPostData():
+    data = {}
     global senti_value
     global content_err
-    if request.method == 'POST':
-        content = request.form.get('content_value')
-        if content != '':
-            content_err = 1
-            senti_value = sen_value(clearTxt(content))
-        else:
-            senti_value = 0
-            content_err = 0
-        senti_value = json.dumps(senti_value)
-        content_err = json.dumps(content_err)
-        return render_template('EmotionalAnalysisOfSingleWeibo.html', senti_value=senti_value, content_err=content_err)
+    content = request.form.get('content_value')
+    if content != '':
+        content_err = 1
+        senti_value = sen_value(clearTxt(content))
     else:
-        return render_template('EmotionalAnalysisOfSingleWeibo.html')
+        content_err = 0
+        senti_value = 0
+    data['senti_value'] = senti_value
+    data['content_err'] = content_err
+    newData = json.dumps(data)  # json.dumps封装
+    return newData
+    # global senti_value
+    # global content_err
+    # if request.method == 'POST':
+    #     content = request.form.get('content_value')
+    #     if content != '':
+    #         content_err = 1
+    #         senti_value = sen_value(clearTxt(content))
+    #     else:
+    #         senti_value = 0
+    #         content_err = 0
+    #     senti_value = json.dumps(senti_value)
+    #     content_err = json.dumps(content_err)
+    #     return render_template('EmotionalAnalysisOfSingleWeibo.html', senti_value=senti_value, content_err=content_err)
+    # else:
+    #     return render_template('EmotionalAnalysisOfSingleWeibo.html')
 
 # 微博情感整体分析，后端服务
 @app.route('/OverallAnalysisOfWeiboSentiment', methods=['GET', 'POST'])
