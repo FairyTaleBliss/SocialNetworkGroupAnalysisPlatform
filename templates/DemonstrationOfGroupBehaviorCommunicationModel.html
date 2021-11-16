@@ -100,7 +100,7 @@
     option = null;
     var graph = {{ graph_data | tojson }}//获取后端返回的图数据
         graph = JSON.parse(graph)
-    console.log(graph)
+    //console.log(graph)
     //设置节点的种类
     var categories = [];
     categories[0] = {
@@ -307,7 +307,7 @@
     {#source_nodes = JSON.parse(source_nodes);#}
     var nodes_show = {{ nodes_show }};
 
-    console.log("nodes_show", nodes_show);
+    //console.log("nodes_show", nodes_show);
 
     var index_ = 0;
     var x_axis = new Array();//横坐标的值
@@ -319,17 +319,17 @@
     //下面通过setInterval函数进行不断从激活节点的记录中读取数据然后不断显示
     {% if nodes_show %}
         {% if show_group %}
-            console.log(nodes_show)
+            //console.log(nodes_show)
             interval_no = setInterval(function () {
                     series_data_num = 0;
-                    console.log("setInterval", index_, nodes_show[index_])
+                    //.log("setInterval", index_, nodes_show[index_])
                     let end = true;
                     for (let k = 0, l = index_; l >= 0; k++, l--) { //k是第几个群体
                         if (nodes_show[k] !== undefined) {
                             now_nodes = nodes_show[k][l]
                             if (now_nodes !== undefined) {
                                 end = false;
-                                console.log("a", " nodes_show[" + k + "][" + l + "]: ", now_nodes)
+                                //console.log("a", " nodes_show[" + k + "][" + l + "]: ", now_nodes)
 
                                 for (let j = 0; j < now_nodes.length; j++) {
                                     let index = getArrayIndex(display, now_nodes[j]);
@@ -341,7 +341,7 @@
                         }
                     }
                     series_data[series_data_index] = series_data_num;//将每个时间点显示的节点数目保存到series_data数组当中
-                    console.log("setInterval", index_)
+                    //console.log("setInterval", index_)
 
 
                     myChart.setOption({
@@ -413,7 +413,7 @@
             var show_group_id = {{ show_group_id }};
             node_show = nodes_show[show_group_id];
             interval_no = setInterval(function () {
-                    console.log("setInterval", index_, node_show[index_])
+                    //console.log("setInterval", index_, node_show[index_])
                     var length_column = node_show[index_].length;
                     for (var j = 0; j < length_column; j++) {
                         var index = getArrayIndex(display, node_show[index_][j]);
